@@ -1,0 +1,65 @@
+# dependencies
+node_modules/
+.pnp.*
+
+# Expo / React Native
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/web-build/
+apps/mobile/ios/
+apps/mobile/android/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+expo-env.d.ts
+
+# Xcode / Swift
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.build/
+.swiftpm/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# ML artifacts (never commit raw participant data or trained weights by default)
+intelligence/artifacts/
+intelligence/mlruns/
+intelligence/datasets/raw/
+intelligence/datasets/participants/
+*.mlmodel
+*.mlpackage/
+*.onnx
+*.pt
+*.joblib
+
+# env / secrets
+.env
+.env.*
+!.env.example
+backend/.env
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# logs
+*.log
+npm-debug.log*
+coverage/

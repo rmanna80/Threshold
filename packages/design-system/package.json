@@ -1,0 +1,21 @@
+{
+  "name": "@threshold/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Threshold design tokens (colour, type, spacing, motion). Mirrored manually in apps/watch/ThresholdWatch/Views/Theme.swift.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "eslint src tests"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.2"
+  }
+}

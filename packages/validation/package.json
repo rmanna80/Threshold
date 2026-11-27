@@ -1,0 +1,25 @@
+{
+  "name": "@threshold/validation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Runtime validation (zod) for Threshold records crossing trust boundaries: storage, watch sync, backend sync, import.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "sideEffects": false,
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "eslint src tests"
+  },
+  "dependencies": {
+    "@threshold/shared-types": "0.1.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "eslint": "^9.39.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
+    "vitest": "^5.1.2"
+  }
+}

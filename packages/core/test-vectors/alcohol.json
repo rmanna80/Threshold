@@ -1,0 +1,318 @@
+{
+  "description": "Cross-language alcohol measurement test vectors. Expected values computed directly from ethanol_grams = ml * abv/100 * 0.789 and standard_drinks = grams / region_grams. Consumed by TypeScript (packages/core), Python (intelligence) and Swift (apps/watch) test suites.",
+  "tolerance": 1e-09,
+  "ethanolDensity": 0.789,
+  "regionGrams": {
+    "US": 14,
+    "UK": 8,
+    "AU": 10,
+    "NZ": 10,
+    "CA": 13.45,
+    "IE": 10,
+    "AT": 20
+  },
+  "valid": [
+    {
+      "name": "us_beer_12oz_5pct",
+      "input": {
+        "serving": {
+          "value": 12,
+          "unit": "fl_oz_us"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expected": {
+        "servingMl": 354.88235475,
+        "consumedMl": 354.88235475,
+        "ethanolGrams": 14.000108894887502,
+        "standardDrinks": 1.0000077782062502,
+        "standardDrinkGrams": 14
+      }
+    },
+    {
+      "name": "us_wine_5oz_12pct",
+      "input": {
+        "serving": {
+          "value": 5,
+          "unit": "fl_oz_us"
+        },
+        "abvPercent": 12,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expected": {
+        "servingMl": 147.8676478125,
+        "consumedMl": 147.8676478125,
+        "ethanolGrams": 14.000108894887498,
+        "standardDrinks": 1.00000777820625,
+        "standardDrinkGrams": 14
+      }
+    },
+    {
+      "name": "us_spirit_1_5oz_40pct",
+      "input": {
+        "serving": {
+          "value": 1.5,
+          "unit": "fl_oz_us"
+        },
+        "abvPercent": 40,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expected": {
+        "servingMl": 44.36029434375,
+        "consumedMl": 44.36029434375,
+        "ethanolGrams": 14.000108894887502,
+        "standardDrinks": 1.0000077782062502,
+        "standardDrinkGrams": 14
+      }
+    },
+    {
+      "name": "uk_pint_4_5pct",
+      "input": {
+        "serving": {
+          "value": 568,
+          "unit": "ml"
+        },
+        "abvPercent": 4.5,
+        "fractionConsumed": 1,
+        "region": "UK"
+      },
+      "expected": {
+        "servingMl": 568,
+        "consumedMl": 568,
+        "ethanolGrams": 20.16684,
+        "standardDrinks": 2.520855,
+        "standardDrinkGrams": 8
+      }
+    },
+    {
+      "name": "au_half_bottle_wine",
+      "input": {
+        "serving": {
+          "value": 750,
+          "unit": "ml"
+        },
+        "abvPercent": 13.5,
+        "fractionConsumed": 0.5,
+        "region": "AU"
+      },
+      "expected": {
+        "servingMl": 750,
+        "consumedMl": 375.0,
+        "ethanolGrams": 39.943125,
+        "standardDrinks": 3.9943125000000004,
+        "standardDrinkGrams": 10
+      }
+    },
+    {
+      "name": "zero_abv",
+      "input": {
+        "serving": {
+          "value": 330,
+          "unit": "ml"
+        },
+        "abvPercent": 0,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expected": {
+        "servingMl": 330,
+        "consumedMl": 330,
+        "ethanolGrams": 0.0,
+        "standardDrinks": 0.0,
+        "standardDrinkGrams": 14
+      }
+    },
+    {
+      "name": "ca_litre_spirits",
+      "input": {
+        "serving": {
+          "value": 1,
+          "unit": "l"
+        },
+        "abvPercent": 40,
+        "fractionConsumed": 1,
+        "region": "CA"
+      },
+      "expected": {
+        "servingMl": 1000,
+        "consumedMl": 1000,
+        "ethanolGrams": 315.6,
+        "standardDrinks": 23.464684014869892,
+        "standardDrinkGrams": 13.45
+      }
+    },
+    {
+      "name": "ie_quarter_33cl",
+      "input": {
+        "serving": {
+          "value": 33,
+          "unit": "cl"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 0.25,
+        "region": "IE"
+      },
+      "expected": {
+        "servingMl": 330,
+        "consumedMl": 82.5,
+        "ethanolGrams": 3.2546250000000003,
+        "standardDrinks": 0.32546250000000004,
+        "standardDrinkGrams": 10
+      }
+    },
+    {
+      "name": "uk_imperial_20oz_4pct",
+      "input": {
+        "serving": {
+          "value": 20,
+          "unit": "fl_oz_imp"
+        },
+        "abvPercent": 4,
+        "fractionConsumed": 1,
+        "region": "UK"
+      },
+      "expected": {
+        "servingMl": 568.26125,
+        "consumedMl": 568.26125,
+        "ethanolGrams": 17.93432505,
+        "standardDrinks": 2.24179063125,
+        "standardDrinkGrams": 8
+      }
+    },
+    {
+      "name": "at_wine_250ml",
+      "input": {
+        "serving": {
+          "value": 250,
+          "unit": "ml"
+        },
+        "abvPercent": 12,
+        "fractionConsumed": 1,
+        "region": "AT"
+      },
+      "expected": {
+        "servingMl": 250,
+        "consumedMl": 250,
+        "ethanolGrams": 23.67,
+        "standardDrinks": 1.1835,
+        "standardDrinkGrams": 20
+      }
+    },
+    {
+      "name": "nz_seltzer_330ml_partial",
+      "input": {
+        "serving": {
+          "value": 330,
+          "unit": "ml"
+        },
+        "abvPercent": 7,
+        "fractionConsumed": 0.6,
+        "region": "NZ"
+      },
+      "expected": {
+        "servingMl": 330,
+        "consumedMl": 198.0,
+        "ethanolGrams": 10.935540000000001,
+        "standardDrinks": 1.0935540000000001,
+        "standardDrinkGrams": 10
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "negative_volume",
+      "input": {
+        "serving": {
+          "value": -1,
+          "unit": "ml"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expectedErrorCode": "invalid_volume"
+    },
+    {
+      "name": "zero_volume",
+      "input": {
+        "serving": {
+          "value": 0,
+          "unit": "ml"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expectedErrorCode": "invalid_volume"
+    },
+    {
+      "name": "abv_over_100",
+      "input": {
+        "serving": {
+          "value": 100,
+          "unit": "ml"
+        },
+        "abvPercent": 101,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expectedErrorCode": "invalid_abv"
+    },
+    {
+      "name": "fraction_zero",
+      "input": {
+        "serving": {
+          "value": 100,
+          "unit": "ml"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 0,
+        "region": "US"
+      },
+      "expectedErrorCode": "invalid_fraction"
+    },
+    {
+      "name": "fraction_over_one",
+      "input": {
+        "serving": {
+          "value": 100,
+          "unit": "ml"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 1.5,
+        "region": "US"
+      },
+      "expectedErrorCode": "invalid_fraction"
+    },
+    {
+      "name": "bad_unit",
+      "input": {
+        "serving": {
+          "value": 100,
+          "unit": "gallon"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expectedErrorCode": "invalid_unit"
+    },
+    {
+      "name": "implausible_volume",
+      "input": {
+        "serving": {
+          "value": 6,
+          "unit": "l"
+        },
+        "abvPercent": 5,
+        "fractionConsumed": 1,
+        "region": "US"
+      },
+      "expectedErrorCode": "implausible_volume"
+    }
+  ]
+}

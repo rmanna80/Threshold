@@ -1,0 +1,24 @@
+{
+  "name": "threshold",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Threshold — personalized alcohol moderation and recovery intelligence (Comeback Technologies LLC)",
+  "workspaces": [
+    "apps/mobile",
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "verify": "npm run typecheck && npm run lint && npm run test",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .gitignore"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.10.1",
+    "typescript": "~6.0.3"
+  }
+}
