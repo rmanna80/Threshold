@@ -16,3 +16,5 @@ export * from './analytics';
 export * from './exportData';
 export * from './syncMerge';
 export * from './baselines';
+export * from './sessionFeatures';
+export * from './recoveryModel';

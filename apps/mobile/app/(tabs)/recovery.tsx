@@ -1,12 +1,12 @@
-import { HOUR_MS, formatDuration, formatMeasurementValue } from '@threshold/core';
+import { HOUR_MS, formatDuration, formatMeasurementValue, nightAfterSession } from '@threshold/core';
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { AppText, Button, Card, Chip, ListRow, Screen, SectionHeader, Stat } from '../../components/ui';
-import { featureFlags } from '../../config/featureFlags';
 import { describeAssociation } from '../../features/insights/observations';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { useBaselines, useSleepNights } from '../../hooks/useHealth';
 import { useNow } from '../../hooks/useNow';
+import { useRecoveryOutlook } from '../../hooks/useRecovery';
 import { definitionFor, formatDateKey, formatDay, formatNumber } from '../../lib/format';
 import { useAppStore } from '../../stores/appStore';
 import { colors, spacing } from '../../theme';
@@ -21,7 +21,12 @@ export default function Recovery() {
   const a = analytics.data;
   const last = a?.sessions.find((s) => s.endedAt !== null);
   const lastCheckin = last ? a?.checkins.find((c) => c.sessionId === last.sessionId) : undefined;
-  const nightAfter = last?.endedAt ? (sleep.data ?? []).find((n) => n.sleepStart !== null && n.sleepStart >= (last.endedAt as number) - 6 * HOUR_MS && n.sleepStart <= (last.endedAt as number) + 12 * HOUR_MS) : undefined;
+  const outlook = useRecoveryOutlook(last?.sessionId);
+  const decision = outlook.data?.decision;
+  // Same rule the prediction features use: the first sleep starting after the last drink, within 18 h of the end.
+  const nightAfter = last?.endedAt
+    ? (nightAfterSession(sleep.data ?? [], { startedAt: last.startedAt, endedAt: last.endedAt, tzOffsetMin: 0 }, last.lastDrinkAt ?? null) ?? undefined)
+    : undefined;
   const sleepBaseline = baselines.data?.baselines.find((b) => b.kind === 'sleep_asleep');
   const obs = a ? describeAssociation(a.sleepVsPeakPace, { exposureHigh: 'more concentrated drinking', outcome: 'sleep quality', higherIsBetter: true }) : null;
 
@@ -78,13 +83,33 @@ export default function Recovery() {
       )}
 
       <SectionHeader title="Next-day outlook" />
-      <Card right={<Chip label="Experimental" tone="experimental" />} title="Personalized prediction">
-        <AppText>Insufficient data for personalized prediction.</AppText>
-        <AppText variant="footnote" color={colors.textSecondary}>
-          {featureFlags.recoveryPrediction
-            ? 'A validated model is required before any estimate is shown.'
-            : 'Recovery prediction is still experimental and turned off. Threshold won’t show risk percentages until a model has been validated. Your check-ins help build that evidence.'}
-        </AppText>
+      <Card right={<Chip label="Experimental" tone="experimental" />} title="Recovery prediction">
+        {!last ? (
+          <AppText color={colors.textSecondary}>Appears after a finished session.</AppText>
+        ) : decision?.status === 'shown' ? (
+          <View style={{ gap: spacing.xs }}>
+            <AppText>
+              Estimated chance of {decision.outcome ?? 'a harder morning'}: {Math.round(decision.probability * 100)}%
+              {decision.interval ? ` (model range ${Math.round(decision.interval[0] * 100)}–${Math.round(decision.interval[1] * 100)}%)` : ''}
+            </AppText>
+            <AppText variant="footnote" color={colors.textSecondary}>
+              {decision.message}
+              {decision.personalized ? ' Adjusted to your previous check-ins.' : ''}
+            </AppText>
+          </View>
+        ) : (
+          <View style={{ gap: spacing.xs }}>
+            <AppText>{decision?.message ?? 'Checking…'}</AppText>
+            <AppText variant="footnote" color={colors.textSecondary}>
+              Threshold shows a percentage only when a model has been validated on consented study data and you have enough check-ins of your own. Your check-ins help build that evidence.
+            </AppText>
+          </View>
+        )}
+        {outlook.data ? (
+          <AppText variant="footnote" color={colors.textTertiary}>
+            Information available about this evening: {outlook.data.features.inputQuality}
+          </AppText>
+        ) : null}
       </Card>
 
       {obs ? (

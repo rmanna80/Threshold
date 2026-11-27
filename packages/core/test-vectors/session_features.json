@@ -1,0 +1,787 @@
+{
+  "description": "Cross-language session feature vectors (spec sf-v1). Inputs mirror SessionFeatureInput; expected values are produced by packages/core/src/sessionFeatures.ts, hand-checked in sessionFeatures.test.ts, and must be reproduced exactly by intelligence/recovery_prediction/features.py. The 'assembly' cases (sleep selection and overnight physiology) have hand-computed expectations.",
+  "cases": [
+    {
+      "name": "no_drinks",
+      "input": {
+        "session": {
+          "startedAt": 1764291600000,
+          "endedAt": 1764302400000,
+          "tzOffsetMin": -300
+        },
+        "drinks": []
+      },
+      "expected": {
+        "version": "sf-v1",
+        "values": {
+          "n_drinks": 0,
+          "n_unknown_strength": 0,
+          "unknown_fraction": null,
+          "std_drinks_known": 0,
+          "n_non_alcoholic": 0,
+          "duration_min": 180,
+          "drinking_span_min": null,
+          "mean_gap_min": null,
+          "peak_std_30min": 0,
+          "peak_std_60min": 0,
+          "max_drinks_30min": 0,
+          "start_local_hour": 20,
+          "last_drink_local_hour": null,
+          "weekend_night": 0,
+          "spirits_share": null,
+          "prior_7d_std_drinks": null,
+          "prior_7d_sessions": null,
+          "days_since_previous_session": null,
+          "sleep_asleep_min": null,
+          "sleep_efficiency": null,
+          "sleep_interruptions": null,
+          "sleep_onset_after_last_drink_min": null,
+          "resting_hr_delta_bpm": null,
+          "hrv_robust_z": null
+        },
+        "availability": {
+          "drinks": false,
+          "strength": true,
+          "history": false,
+          "sleep": false,
+          "physiology": false
+        },
+        "dataQuality": 0.25,
+        "inputQuality": "low"
+      }
+    },
+    {
+      "name": "typical_evening_with_history_sleep_physiology",
+      "input": {
+        "session": {
+          "startedAt": 1764291600000,
+          "endedAt": 1764303000000,
+          "tzOffsetMin": -300
+        },
+        "drinks": [
+          {
+            "consumedAt": 1764292200000,
+            "standardDrinks": 1,
+            "isAlcoholic": true,
+            "category": "beer",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764294000000,
+            "standardDrinks": 1.2,
+            "isAlcoholic": true,
+            "category": "wine",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764295500000,
+            "standardDrinks": 1,
+            "isAlcoholic": true,
+            "category": "spirits",
+            "confirmation": "estimated",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764297000000,
+            "standardDrinks": null,
+            "isAlcoholic": true,
+            "category": "cocktail",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764297900000,
+            "standardDrinks": 0,
+            "isAlcoholic": false,
+            "category": "water",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764295200000,
+            "standardDrinks": 2,
+            "isAlcoholic": true,
+            "category": "spirits",
+            "confirmation": "user_confirmed",
+            "deletedAt": 1764295300000
+          },
+          {
+            "consumedAt": 1764298800000,
+            "standardDrinks": 1,
+            "isAlcoholic": true,
+            "category": "beer",
+            "confirmation": "detected_unconfirmed",
+            "deletedAt": null
+          }
+        ],
+        "priorDrinks": [
+          {
+            "consumedAt": 1764118800000,
+            "standardDrinks": 1.5,
+            "isAlcoholic": true,
+            "category": "wine",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764120600000,
+            "standardDrinks": 1,
+            "isAlcoholic": true,
+            "category": "beer",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764122400000,
+            "standardDrinks": null,
+            "isAlcoholic": true,
+            "category": "cocktail",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1763600400000,
+            "standardDrinks": 3,
+            "isAlcoholic": true,
+            "category": "beer",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          }
+        ],
+        "priorSessionStarts": [
+          1764118800000,
+          1763600400000,
+          1764378000000
+        ],
+        "sleep": {
+          "asleepMinutes": 400,
+          "inBedMinutes": 450,
+          "interruptions": 2,
+          "sleepStart": 1764305100000
+        },
+        "restingHrDeltaBpm": 3.5,
+        "hrvRobustZ": -1.2
+      },
+      "expected": {
+        "version": "sf-v1",
+        "values": {
+          "n_drinks": 4,
+          "n_unknown_strength": 1,
+          "unknown_fraction": 0.25,
+          "std_drinks_known": 3.2,
+          "n_non_alcoholic": 1,
+          "duration_min": 190,
+          "drinking_span_min": 80,
+          "mean_gap_min": 26.666667,
+          "peak_std_30min": 2.2,
+          "peak_std_60min": 3.2,
+          "max_drinks_30min": 2,
+          "start_local_hour": 20,
+          "last_drink_local_hour": 21.5,
+          "weekend_night": 0,
+          "spirits_share": 0.3125,
+          "prior_7d_std_drinks": 2.5,
+          "prior_7d_sessions": 1,
+          "days_since_previous_session": 2,
+          "sleep_asleep_min": 400,
+          "sleep_efficiency": 0.888889,
+          "sleep_interruptions": 2,
+          "sleep_onset_after_last_drink_min": 135,
+          "resting_hr_delta_bpm": 3.5,
+          "hrv_robust_z": -1.2
+        },
+        "availability": {
+          "drinks": true,
+          "strength": false,
+          "history": true,
+          "sleep": true,
+          "physiology": true
+        },
+        "dataQuality": 0.9375,
+        "inputQuality": "high"
+      }
+    },
+    {
+      "name": "after_midnight_start_counts_as_friday_night",
+      "input": {
+        "session": {
+          "startedAt": 1764394200000,
+          "endedAt": 1764403200000,
+          "tzOffsetMin": -300
+        },
+        "drinks": [
+          {
+            "consumedAt": 1764394800000,
+            "standardDrinks": 1.4,
+            "isAlcoholic": true,
+            "category": "hard_seltzer",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764399600000,
+            "standardDrinks": 1.4,
+            "isAlcoholic": true,
+            "category": "mixed_drink",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          }
+        ],
+        "priorDrinks": [],
+        "priorSessionStarts": [
+          1764135000000
+        ]
+      },
+      "expected": {
+        "version": "sf-v1",
+        "values": {
+          "n_drinks": 2,
+          "n_unknown_strength": 0,
+          "unknown_fraction": 0,
+          "std_drinks_known": 2.8,
+          "n_non_alcoholic": 0,
+          "duration_min": 150,
+          "drinking_span_min": 80,
+          "mean_gap_min": 80,
+          "peak_std_30min": 1.4,
+          "peak_std_60min": 1.4,
+          "max_drinks_30min": 1,
+          "start_local_hour": 0.5,
+          "last_drink_local_hour": 2,
+          "weekend_night": 1,
+          "spirits_share": 0.5,
+          "prior_7d_std_drinks": 0,
+          "prior_7d_sessions": 1,
+          "days_since_previous_session": 3,
+          "sleep_asleep_min": null,
+          "sleep_efficiency": null,
+          "sleep_interruptions": null,
+          "sleep_onset_after_last_drink_min": null,
+          "resting_hr_delta_bpm": null,
+          "hrv_robust_z": null
+        },
+        "availability": {
+          "drinks": true,
+          "strength": true,
+          "history": true,
+          "sleep": false,
+          "physiology": false
+        },
+        "dataQuality": 0.5,
+        "inputQuality": "medium"
+      }
+    },
+    {
+      "name": "rapid_open_session_positive_offset",
+      "input": {
+        "session": {
+          "startedAt": 1764444000000,
+          "endedAt": null,
+          "tzOffsetMin": 60
+        },
+        "drinks": [
+          {
+            "consumedAt": 1764444600000,
+            "standardDrinks": 1.5,
+            "isAlcoholic": true,
+            "category": "spirits",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764445200000,
+            "standardDrinks": 1.5,
+            "isAlcoholic": true,
+            "category": "spirits",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764446100000,
+            "standardDrinks": 1.5,
+            "isAlcoholic": true,
+            "category": "cocktail",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          },
+          {
+            "consumedAt": 1764448200000,
+            "standardDrinks": 0.8,
+            "isAlcoholic": true,
+            "category": "beer",
+            "confirmation": "user_confirmed",
+            "deletedAt": null
+          }
+        ],
+        "sleep": {
+          "asleepMinutes": 300,
+          "inBedMinutes": 0,
+          "interruptions": 0,
+          "sleepStart": null
+        }
+      },
+      "expected": {
+        "version": "sf-v1",
+        "values": {
+          "n_drinks": 4,
+          "n_unknown_strength": 0,
+          "unknown_fraction": 0,
+          "std_drinks_known": 5.3,
+          "n_non_alcoholic": 0,
+          "duration_min": 70,
+          "drinking_span_min": 60,
+          "mean_gap_min": 20,
+          "peak_std_30min": 4.5,
+          "peak_std_60min": 4.5,
+          "max_drinks_30min": 3,
+          "start_local_hour": 20.333333,
+          "last_drink_local_hour": 21.5,
+          "weekend_night": 1,
+          "spirits_share": 0.849057,
+          "prior_7d_std_drinks": null,
+          "prior_7d_sessions": null,
+          "days_since_previous_session": null,
+          "sleep_asleep_min": 300,
+          "sleep_efficiency": null,
+          "sleep_interruptions": 0,
+          "sleep_onset_after_last_drink_min": null,
+          "resting_hr_delta_bpm": null,
+          "hrv_robust_z": null
+        },
+        "availability": {
+          "drinks": true,
+          "strength": true,
+          "history": false,
+          "sleep": true,
+          "physiology": false
+        },
+        "dataQuality": 0.5,
+        "inputQuality": "medium"
+      }
+    }
+  ],
+  "assembly": {
+    "nightAfterSession": [
+      {
+        "name": "picks_first_sleep_after_last_drink",
+        "session": {
+          "startedAt": 1764291600000,
+          "endedAt": 1764302400000,
+          "tzOffsetMin": -300
+        },
+        "lastDrinkAt": 1764298800000,
+        "nights": [
+          {
+            "name": "previous",
+            "sleepStart": 1764219600000,
+            "sleepEnd": 1764248400000
+          },
+          {
+            "name": "after",
+            "sleepStart": 1764306000000,
+            "sleepEnd": 1764331200000
+          },
+          {
+            "name": "next_day",
+            "sleepStart": 1764392400000,
+            "sleepEnd": 1764417600000
+          }
+        ],
+        "expectedName": "after"
+      },
+      {
+        "name": "none_within_18h_of_end",
+        "session": {
+          "startedAt": 1764291600000,
+          "endedAt": 1764302400000,
+          "tzOffsetMin": -300
+        },
+        "lastDrinkAt": 1764298800000,
+        "nights": [
+          {
+            "name": "previous",
+            "sleepStart": 1764219600000,
+            "sleepEnd": 1764248400000
+          },
+          {
+            "name": "next_day",
+            "sleepStart": 1764392400000,
+            "sleepEnd": 1764417600000
+          }
+        ],
+        "expectedName": null
+      },
+      {
+        "name": "no_drinks_uses_session_start",
+        "session": {
+          "startedAt": 1764291600000,
+          "endedAt": 1764302400000,
+          "tzOffsetMin": -300
+        },
+        "lastDrinkAt": null,
+        "nights": [
+          {
+            "name": "previous",
+            "sleepStart": 1764219600000,
+            "sleepEnd": 1764248400000
+          },
+          {
+            "name": "after",
+            "sleepStart": 1764306000000,
+            "sleepEnd": 1764331200000
+          },
+          {
+            "name": "next_day",
+            "sleepStart": 1764392400000,
+            "sleepEnd": 1764417600000
+          }
+        ],
+        "expectedName": "after"
+      }
+    ],
+    "overnightPhysiology": [
+      {
+        "name": "delta_and_z_against_prior_28_days",
+        "sessionStartedAt": 1764291600000,
+        "sleep": {
+          "sleepStart": 1764306000000,
+          "sleepEnd": 1764331200000
+        },
+        "restingHr": [
+          {
+            "value": 58,
+            "at": 1764244800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1764158400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 59,
+            "at": 1764072000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 61,
+            "at": 1763985600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1763899200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 58,
+            "at": 1763812800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 62,
+            "at": 1763726400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 59,
+            "at": 1763640000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1763553600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 61,
+            "at": 1763467200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 66,
+            "at": 1764333000000,
+            "tzOffsetMin": -300
+          }
+        ],
+        "hrv": [
+          {
+            "value": 45,
+            "at": 1764255600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 50,
+            "at": 1764252000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 48,
+            "at": 1764169200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 52,
+            "at": 1764165600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 47,
+            "at": 1764082800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 49,
+            "at": 1764079200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 51,
+            "at": 1763996400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 46,
+            "at": 1763992800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 50,
+            "at": 1763910000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 48,
+            "at": 1763906400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 53,
+            "at": 1763823600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 44,
+            "at": 1763820000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 30,
+            "at": 1764309600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 34,
+            "at": 1764313200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 32,
+            "at": 1764316800000,
+            "tzOffsetMin": -300
+          }
+        ],
+        "expected": {
+          "restingHrDeltaBpm": 6,
+          "hrvRobustZ": -5.564625
+        }
+      },
+      {
+        "name": "immature_baseline_gives_null",
+        "sessionStartedAt": 1764291600000,
+        "sleep": {
+          "sleepStart": 1764306000000,
+          "sleepEnd": 1764331200000
+        },
+        "restingHr": [
+          {
+            "value": 58,
+            "at": 1764244800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1764158400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 59,
+            "at": 1764072000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 66,
+            "at": 1764333000000,
+            "tzOffsetMin": -300
+          }
+        ],
+        "hrv": [
+          {
+            "value": 30,
+            "at": 1764309600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 34,
+            "at": 1764313200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 32,
+            "at": 1764316800000,
+            "tzOffsetMin": -300
+          }
+        ],
+        "expected": {
+          "restingHrDeltaBpm": null,
+          "hrvRobustZ": null
+        }
+      },
+      {
+        "name": "no_sleep_gives_null",
+        "sessionStartedAt": 1764291600000,
+        "sleep": null,
+        "restingHr": [
+          {
+            "value": 58,
+            "at": 1764244800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1764158400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 59,
+            "at": 1764072000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 61,
+            "at": 1763985600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1763899200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 58,
+            "at": 1763812800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 62,
+            "at": 1763726400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 59,
+            "at": 1763640000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 60,
+            "at": 1763553600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 61,
+            "at": 1763467200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 66,
+            "at": 1764333000000,
+            "tzOffsetMin": -300
+          }
+        ],
+        "hrv": [
+          {
+            "value": 45,
+            "at": 1764255600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 50,
+            "at": 1764252000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 48,
+            "at": 1764169200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 52,
+            "at": 1764165600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 47,
+            "at": 1764082800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 49,
+            "at": 1764079200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 51,
+            "at": 1763996400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 46,
+            "at": 1763992800000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 50,
+            "at": 1763910000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 48,
+            "at": 1763906400000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 53,
+            "at": 1763823600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 44,
+            "at": 1763820000000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 30,
+            "at": 1764309600000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 34,
+            "at": 1764313200000,
+            "tzOffsetMin": -300
+          },
+          {
+            "value": 32,
+            "at": 1764316800000,
+            "tzOffsetMin": -300
+          }
+        ],
+        "expected": {
+          "restingHrDeltaBpm": null,
+          "hrvRobustZ": null
+        }
+      }
+    ]
+  }
+}

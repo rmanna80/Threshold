@@ -98,6 +98,8 @@ export interface SessionSummary {
   peakStandardDrinksIn60Min: number;
   maxDrinksIn30Min: number;
   meanIntervalMin: number | null;
+  /** Time of the last counted alcoholic drink, or null. */
+  lastDrinkAt: number | null;
   goal: number | null;
   goalMet: boolean | null;
 }
@@ -120,6 +122,7 @@ export function summarizeSession(session: DrinkingSession, drinks: readonly Drin
     peakStandardDrinksIn60Min: pace.maxStandardDrinksInAny60Min,
     maxDrinksIn30Min: pace.maxDrinksInAny30Min,
     meanIntervalMin: pace.meanIntervalMs === null ? null : pace.meanIntervalMs / MINUTE_MS,
+    lastDrinkAt: own.filter(countsTowardConsumption).reduce<number | null>((m, d) => (m === null || d.consumedAt > m ? d.consumedAt : m), null),
     goal,
     goalMet: goal === null ? null : pace.totalStandardDrinks <= goal + 1e-9,
   };

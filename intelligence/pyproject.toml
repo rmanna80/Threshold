@@ -52,3 +52,11 @@ extend-exclude = ["artifacts", "mlruns"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "NPY", "SIM"]
 ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+# scikit-learn, scipy, xgboost, torch and coremltools ship without type stubs.
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = false
+exclude = ["^tests/", "^artifacts/", "^scripts/"]

@@ -2,6 +2,7 @@ import type { SqlDatabase } from '../types';
 import { BeverageRepository, DrinkRepository } from './drinks';
 import { CheckinRepository, InterventionRepository } from './interventions';
 import { AnomalyRepository, BaselineRepository, MeasurementRepository } from './measurements';
+import { ModelPredictionRepository, SessionFeatureRepository } from './predictions';
 import { SessionRepository } from './sessions';
 import { KvRepository, SettingsRepository } from './settings';
 import { ProcessedMessageRepository, SyncQueueRepository } from './syncQueue';
@@ -19,6 +20,8 @@ export interface Repositories {
   measurements: MeasurementRepository;
   baselines: BaselineRepository;
   anomalies: AnomalyRepository;
+  sessionFeatures: SessionFeatureRepository;
+  predictions: ModelPredictionRepository;
 }
 
 export function createRepositories(db: SqlDatabase): Repositories {
@@ -35,6 +38,8 @@ export function createRepositories(db: SqlDatabase): Repositories {
     measurements: new MeasurementRepository(db),
     baselines: new BaselineRepository(db),
     anomalies: new AnomalyRepository(db),
+    sessionFeatures: new SessionFeatureRepository(db),
+    predictions: new ModelPredictionRepository(db),
   };
 }
 

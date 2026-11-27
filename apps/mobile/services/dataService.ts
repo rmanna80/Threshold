@@ -24,7 +24,7 @@ export const USER_DATA_TABLES = [
 
 export async function collectExport(services: Pick<AppServices, 'repos' | 'clock' | 'deviceId'>, appVersion: string) {
   const { repos, clock } = services;
-  const [profile, preferences, goals, consents, sessions, drinks, checkins, interventions, measurements, baselines] = await Promise.all([
+  const [profile, preferences, goals, consents, sessions, drinks, checkins, interventions, measurements, baselines, sessionFeatures, predictions] = await Promise.all([
     repos.settings.getProfile(),
     repos.settings.getPreferences(),
     repos.settings.getGoals(),
@@ -39,9 +39,11 @@ export async function collectExport(services: Pick<AppServices, 'repos' | 'clock
       clock.now(),
     ),
     repos.baselines.listAll(),
+    repos.sessionFeatures.listAll(),
+    repos.predictions.listAll(),
   ]);
   return buildExportBundle(
-    { profile, preferences, goals, consents, sessions, drinks, checkins, interventions, measurements, baselines },
+    { profile, preferences, goals, consents, sessions, drinks, checkins, interventions, measurements, baselines, sessionFeatures, predictions },
     clock.now(),
     appVersion,
   );

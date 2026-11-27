@@ -28,7 +28,7 @@ def _make_network(name: str, n_classes: int, channels: int = 6) -> Any:
     torch = _torch()
     nn = torch.nn
 
-    class CNN1D(nn.Module):  # type: ignore[misc]
+    class CNN1D(nn.Module):  # type: ignore[misc,name-defined]
         def __init__(self) -> None:
             super().__init__()
             self.net = nn.Sequential(
@@ -51,7 +51,7 @@ def _make_network(name: str, n_classes: int, channels: int = 6) -> Any:
         def forward(self, x: Any) -> Any:
             return self.net(x)
 
-    class TemporalBlock(nn.Module):  # type: ignore[misc]
+    class TemporalBlock(nn.Module):  # type: ignore[misc,name-defined]
         def __init__(self, cin: int, cout: int, dilation: int) -> None:
             super().__init__()
             pad = 2 * dilation
@@ -68,7 +68,7 @@ def _make_network(name: str, n_classes: int, channels: int = 6) -> Any:
         def forward(self, x: Any) -> Any:
             return torch.relu(self.conv(x) + self.skip(x))
 
-    class TCN(nn.Module):  # type: ignore[misc]
+    class TCN(nn.Module):  # type: ignore[misc,name-defined]
         def __init__(self) -> None:
             super().__init__()
             self.blocks = nn.Sequential(
@@ -79,7 +79,7 @@ def _make_network(name: str, n_classes: int, channels: int = 6) -> Any:
         def forward(self, x: Any) -> Any:
             return self.head(self.blocks(x).mean(dim=2))
 
-    class GRUNet(nn.Module):  # type: ignore[misc]
+    class GRUNet(nn.Module):  # type: ignore[misc,name-defined]
         def __init__(self) -> None:
             super().__init__()
             self.gru = nn.GRU(channels, 48, batch_first=True)

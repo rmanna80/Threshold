@@ -102,3 +102,32 @@ def cluster_bootstrap_ci(
         stats.append(metric(idx))
     lo, hi = np.quantile(stats, [alpha / 2, 1 - alpha / 2])
     return float(lo), float(hi)
+
+
+def binary_brier(y: NDArray[np.int64], p: NDArray[np.float64]) -> float:
+    """Brier score for a binary outcome: mean (p − y)²."""
+    return float(np.mean((np.asarray(p, dtype=float) - np.asarray(y, dtype=float)) ** 2))
+
+
+def brier_skill_score(y: NDArray[np.int64], p: NDArray[np.float64], p_ref: NDArray[np.float64]) -> float:
+    """1 − Brier / Brier_ref. Positive = better than the reference (base rate); 0 = no skill."""
+    ref = binary_brier(y, p_ref)
+    return float(1 - binary_brier(y, p) / ref) if ref > 0 else 0.0
+
+
+def binary_ece(y: NDArray[np.int64], p: NDArray[np.float64], bins: int = 10) -> float:
+    """Calibration error for P(y=1): Σ_b (n_b / N) |observed rate_b − mean p_b| (equal-width bins)."""
+    y = np.asarray(y, dtype=float)
+    p = np.asarray(p, dtype=float)
+    if len(p) == 0:
+        return 0.0
+    idx = np.minimum((p * bins).astype(int), bins - 1)
+    return float(sum((idx == b).mean() * abs(y[idx == b].mean() - p[idx == b].mean()) for b in range(bins) if (idx == b).any()))
+
+
+def ranked_probability_score(y: NDArray[np.int64], probs: NDArray[np.float64]) -> float:
+    """Mean RPS for ordinal outcomes: Σ_k (CDF_pred(k) − CDF_obs(k))² / (K − 1)."""
+    probs = np.asarray(probs, dtype=float)
+    k = probs.shape[1]
+    obs = (np.arange(k)[None, :] >= np.asarray(y)[:, None]).astype(float)
+    return float(np.mean(np.sum((np.cumsum(probs, axis=1) - obs) ** 2, axis=1) / (k - 1)))

@@ -114,3 +114,48 @@ def export_onnx(sklearn_model: Any, n_features: int, report: dict[str, Any], out
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(onx.SerializeToString())
     return out
+
+
+def export_recovery_manifest(
+    model: Any,
+    report: dict[str, Any],
+    model_id: str,
+    version: str,
+    out: Path,
+    bootstrap_models: list[Any] | None = None,
+    min_history: int = 5,
+    prior_sigma: float | None = None,
+) -> Path:
+    """Write the JSON manifest the app evaluates on-device (apps/mobile/services/recovery).
+
+    Only the ``logistic`` family is exportable (median imputation + missing indicators +
+    standardisation + logistic regression), because the app reproduces it exactly in TypeScript.
+    ``bootstrap_models`` (logistic pipelines refit on participant-bootstrap resamples) give the
+    interval the app shows; without them the app shows no interval. ``prior_sigma`` (from the
+    personalization evaluation) enables on-device partial pooling; without it the app uses the
+    population estimate only.
+    """
+    from ..recovery_prediction.features import SESSION_FEATURE_NAMES, SESSION_FEATURE_VERSION
+    from ..recovery_prediction.models import logistic_parts
+
+    _check(report, allow_unvalidated=False)
+    if report.get("task") != "recovery_risk" or report.get("feature_version") != SESSION_FEATURE_VERSION:
+        raise ExportRefused("report is not a recovery report for the current feature version")
+    manifest = {
+        "modelId": model_id,
+        "version": version,
+        "status": "validated",
+        "task": "recovery_risk",
+        "featureVersion": SESSION_FEATURE_VERSION,
+        "features": list(SESSION_FEATURE_NAMES),
+        "outcome": report.get("outcome", {}).get("binary"),
+        "severityThreshold": report.get("outcome", {}).get("severity_threshold", 5),
+        "minHistory": min_history,
+        "priorSigma": prior_sigma,
+        "runId": str(report.get("run_id")),
+        "model": logistic_parts(model),
+        "bootstrap": [logistic_parts(m) for m in (bootstrap_models or [])],
+    }
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(manifest, indent=2))
+    return out

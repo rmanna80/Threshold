@@ -13,6 +13,7 @@ import { HealthKitProvider } from './health/healthkitProvider';
 import { configureForegroundPresentation, expoNotificationGateway } from './notifications';
 import { ApiClient } from './sync/apiClient';
 import { secureTokenStore } from './sync/secureTokenStore';
+import { BUNDLED_RECOVERY_MODEL } from '../config/recoveryModel';
 import { createNativeResearchStore } from './research/researchStore';
 import { createNativeWatchTransport } from './watch/watchBridge';
 import { env } from '../config/env';
@@ -55,6 +56,8 @@ async function run(): Promise<AppServices> {
     researchEnabled: featureFlags.gestureResearchMode,
     automaticDetectionAllowed: featureFlags.automaticDetectionPrompt,
     recordConsent: (type, granted, version) => useAppStore.getState().recordConsent(type, granted, version),
+    recoveryPredictionEnabled: featureFlags.recoveryPrediction,
+    recoveryModel: BUNDLED_RECOVERY_MODEL,
     createApi: (deviceId) =>
       env.apiUrl ? new ApiClient(env.apiUrl, secureTokenStore, deviceId, (u, i) => fetch(u, i), 15_000, env.appEnv === 'development') : null,
     notificationsAllowed: () => useAppStore.getState().hasConsent('notifications'),
@@ -91,6 +94,11 @@ async function run(): Promise<AppServices> {
     void trySync();
   }
   // Health sync runs in the background; failures never block start-up.
-  void services.healthService.sync(30).then(() => queryClient.invalidateQueries({ queryKey: ['health'] })).catch(() => undefined);
+  void services.healthService
+    .sync(30)
+    .then(() => services.recovery.refreshRecent(14)) // new sleep/physiology changes session features
+    .then(() => queryClient.invalidateQueries({ queryKey: ['health'] }))
+    .then(() => queryClient.invalidateQueries({ queryKey: ['recovery'] }))
+    .catch(() => undefined);
   return services;
 }

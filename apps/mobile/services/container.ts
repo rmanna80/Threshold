@@ -1,4 +1,4 @@
-import { newId } from '@threshold/core';
+import { newId, type RecoveryModelManifest } from '@threshold/core';
 import type { ConsentType, UserGoals, UserPreferences } from '@threshold/shared-types';
 import { createRepositories, type Repositories } from '../database/repositories';
 import type { SqlDatabase } from '../database/types';
@@ -9,6 +9,7 @@ import type { HealthDataProvider } from './health/types';
 import type { NotificationGateway } from './notifications';
 import { InterventionService } from './interventionService';
 import { Outbox } from './outbox';
+import { RecoveryPredictionService } from './recovery/recoveryPredictionService';
 import { RecoveryReminderService } from './recoveryReminderService';
 import { ResearchService } from './research/researchService';
 import type { ResearchFileStore } from './research/researchStore';
@@ -38,6 +39,7 @@ export interface AppServices {
   sync: SyncService | null;
   reminders: RecoveryReminderService;
   research: ResearchService;
+  recovery: RecoveryPredictionService;
 }
 
 export interface CreateServicesParams {
@@ -60,6 +62,10 @@ export interface CreateServicesParams {
   automaticDetectionAllowed?: boolean;
   /** Persists a consent record (defaults to writing directly to the repository). */
   recordConsent?: (type: ConsentType, granted: boolean, version: string) => Promise<void>;
+  /** Feature flag `recoveryPrediction`. */
+  recoveryPredictionEnabled?: boolean;
+  /** Bundled validated recovery model manifest (null in this build). */
+  recoveryModel?: RecoveryModelManifest | null;
 }
 
 export async function getOrCreateDeviceId(repos: Repositories, now: number): Promise<string> {
@@ -111,6 +117,14 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
     { automaticDetectionAllowed: params.automaticDetectionAllowed ?? false, getResearchPrefs: () => research.watchPrefs() },
   );
   research.subscribe(() => void watchSync.pushContext());
+  const recovery = new RecoveryPredictionService(repos, params.clock, {
+    enabled: params.recoveryPredictionEnabled ?? false,
+    manifest: params.recoveryModel ?? null,
+  });
+  sessions.subscribe((change) => {
+    // Features describe finished evenings; keep them current when an ended session changes.
+    if (change.session.status === 'ended') void recovery.computeFeatures(change.session.id).catch(() => undefined);
+  });
   const api = params.cloudSyncAvailable ? (params.createApi?.(deviceId) ?? null) : null;
   const sync = api ? new SyncService(api, repos, sessions, outbox, params.clock, deviceId) : null;
   return {
@@ -129,6 +143,7 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
     sync,
     reminders,
     research,
+    recovery,
   };
 }
 
