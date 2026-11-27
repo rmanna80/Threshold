@@ -9,6 +9,7 @@ import type { HealthDataProvider } from './health/types';
 import type { NotificationGateway } from './notifications';
 import { InterventionService } from './interventionService';
 import { Outbox } from './outbox';
+import { RecoveryReminderService } from './recoveryReminderService';
 import { SessionService } from './sessionService';
 import type { ApiClient } from './sync/apiClient';
 import { SyncService } from './sync/syncService';
@@ -33,6 +34,7 @@ export interface AppServices {
   watchSync: WatchSyncService;
   api: ApiClient | null;
   sync: SyncService | null;
+  reminders: RecoveryReminderService;
 }
 
 export interface CreateServicesParams {
@@ -47,6 +49,7 @@ export interface CreateServicesParams {
   hasHealthConsent?: () => boolean;
   watchTransport: WatchTransport;
   createApi?: (deviceId: string) => ApiClient | null;
+  notificationsAllowed?: () => boolean;
 }
 
 export async function getOrCreateDeviceId(repos: Repositories, now: number): Promise<string> {
@@ -78,6 +81,8 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
     haptic: params.haptic,
   });
   sessions.subscribe((change) => interventions.onSessionChange(change).then(() => undefined));
+  const reminders = new RecoveryReminderService(repos, params.notifications, params.clock, () => params.notificationsAllowed?.() ?? true);
+  sessions.subscribe((change) => reminders.onSessionChange(change));
   const watchSync = new WatchSyncService(
     params.watchTransport,
     repos,
@@ -103,6 +108,7 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
     watchSync,
     api,
     sync,
+    reminders,
   };
 }
 

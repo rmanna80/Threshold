@@ -104,3 +104,41 @@ export class BaselineRepository {
     return rows.map((r) => parseJson<BaselineSummary | null>(r.json, null)).filter((b): b is BaselineSummary => b !== null);
   }
 }
+
+export interface AnomalyEventRow {
+  id: string;
+  kind: string;
+  measurementId: string | null;
+  sessionId: string | null;
+  direction: 'elevated' | 'lower';
+  robustZ: number | null;
+  measuredAt: number;
+  detectedAt: number;
+  description: string;
+}
+
+/** Descriptive physiological deviations (never diagnoses), kept for the user's own history. */
+export class AnomalyRepository {
+  constructor(private readonly db: SqlDatabase) {}
+
+  async insertOnce(e: AnomalyEventRow): Promise<boolean> {
+    if (e.measurementId) {
+      const existing = await this.db.getFirstAsync<{ id: string }>('SELECT id FROM anomaly_events WHERE measurement_id = ? AND kind = ?', [e.measurementId, e.kind]);
+      if (existing) return false;
+    }
+    await this.db.runAsync(
+      `INSERT INTO anomaly_events (id, kind, measurement_id, session_id, direction, robust_z, measured_at, detected_at, description)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [e.id, e.kind, e.measurementId, e.sessionId, e.direction, e.robustZ, e.measuredAt, e.detectedAt, e.description],
+    );
+    return true;
+  }
+
+  async listRecent(limit: number): Promise<AnomalyEventRow[]> {
+    const rows = await this.db.getAllAsync<{ id: string; kind: string; measurement_id: string | null; session_id: string | null; direction: 'elevated' | 'lower'; robust_z: number | null; measured_at: number; detected_at: number; description: string }>(
+      'SELECT * FROM anomaly_events ORDER BY detected_at DESC LIMIT ?',
+      [limit],
+    );
+    return rows.map((r) => ({ id: r.id, kind: r.kind, measurementId: r.measurement_id, sessionId: r.session_id, direction: r.direction, robustZ: r.robust_z, measuredAt: r.measured_at, detectedAt: r.detected_at, description: r.description }));
+  }
+}

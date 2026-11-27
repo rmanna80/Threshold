@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Alert, View } from 'react-native';
 import { AppText, Button, Card, Chip, Screen, SectionHeader, Stat } from '../../components/ui';
 import { DrinkRow, InterventionCard, PaceCard, QuickLogBar } from '../../features/session/components';
+import { PhysiologyCard } from '../../features/session/PhysiologyCard';
 import { useLivePace, useQuickLog, useRecentBeverages } from '../../features/session/useSessionData';
 import { useNow } from '../../hooks/useNow';
 import { formatClock, formatNumber } from '../../lib/format';
@@ -110,6 +111,7 @@ export default function SessionTab() {
       </Card>
 
       <PaceCard pace={pace} def={def} goals={session.goalSnapshot} />
+      <PhysiologyCard />
 
       <SectionHeader title={`Drinks (${visibleDrinks.length})`} />
       <Card>

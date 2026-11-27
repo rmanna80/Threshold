@@ -3,6 +3,8 @@ import type { AppServices } from './container';
 
 /** Tables wiped by "Delete all local data" (schema and migrations are kept). */
 export const USER_DATA_TABLES = [
+  'session_features',
+  'anomaly_events',
   'drink_events',
   'intervention_events',
   'recovery_checkins',

@@ -20,6 +20,7 @@ export default function Insights() {
   const q = useAnalytics(Number(range));
   const sleep = useSleepNights(Number(range) * 7);
   const rhr = useMeasurementSeries('resting_heart_rate', Number(range) * 7);
+  const hrv = useMeasurementSeries('hrv_sdnn', Number(range) * 7);
   const def = definitionFor(prefs);
   const a = q.data;
 
@@ -119,6 +120,15 @@ export default function Insights() {
       {(rhr.data ?? []).length > 0 ? (
         <Card title="Resting heart rate (Apple Health)">
           <BarChart data={(rhr.data ?? []).slice(-14).map((m) => ({ label: formatDay(m.startAt).split(' ')[0] ?? '', value: m.value }))} unit="bpm" color={colors.info} accessibilityLabel="Daily resting heart rate" formatValue={(v) => String(Math.round(v))} height={110} />
+        </Card>
+      ) : null}
+
+      {(hrv.data ?? []).length > 0 ? (
+        <Card title="Heart rate variability (Apple Health)" subtitle="SDNN, as recorded by your watch">
+          <BarChart data={(hrv.data ?? []).slice(-21).map((m) => ({ label: formatDay(m.startAt).split(' ')[0] ?? '', value: m.value }))} unit="ms" color={colors.info} accessibilityLabel="Heart rate variability readings" formatValue={(v) => String(Math.round(v))} height={110} />
+          <AppText variant="footnote" color={colors.textTertiary}>
+            HRV varies a lot day to day and by time of day. Look at trends, not single values.
+          </AppText>
         </Card>
       ) : null}
 

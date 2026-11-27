@@ -105,3 +105,16 @@ describe('eligibility', () => {
     expect(legalDrinkingAge('ZZ')).toBe(18);
   });
 });
+
+import { nextCheckinReminderAt } from '../src';
+
+describe('check-in reminder timing', () => {
+  it('suggests 09:00 local at least 4 hours after the session ends', () => {
+    // Ends 01:00 New York (06:00 UTC) → 09:00 New York the same day.
+    expect(nextCheckinReminderAt(Date.UTC(2026, 10, 28, 6), -300)).toBe(Date.UTC(2026, 10, 28, 14));
+    // Ends 22:00 New York → 09:00 the next morning.
+    expect(nextCheckinReminderAt(Date.UTC(2026, 10, 28, 3), -300)).toBe(Date.UTC(2026, 10, 28, 14));
+    // Ends 07:00 → too soon for 09:00 that day, so the following day.
+    expect(nextCheckinReminderAt(Date.UTC(2026, 10, 28, 12), -300)).toBe(Date.UTC(2026, 10, 29, 14));
+  });
+});

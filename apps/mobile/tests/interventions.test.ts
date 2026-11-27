@@ -82,3 +82,32 @@ describe('intervention service (end-to-end with persistence and notifications)',
     expect(alcoholicSinceLastNonAlcoholic(drinks)).toBe(2);
   });
 });
+
+describe('morning check-in reminder', () => {
+  it('schedules one reminder after an evening with alcohol and cancels it on check-in', async () => {
+    const h = await createHarness();
+    const s = await h.services.sessions.startSession({ origin: 'phone' });
+    if (!s.ok) throw new Error();
+    h.clock.advance(MINUTE_MS);
+    await h.services.sessions.logDrink({ beverage: { id: null, name: 'Shot', category: 'spirits' }, measurement: shot, source: 'manual' });
+    h.clock.advance(60 * MINUTE_MS);
+    await h.services.sessions.end(s.value.id);
+    await flush();
+    const reminder = h.notifications.scheduled.find((n) => n.title === 'Morning check-in');
+    expect(reminder).toBeDefined();
+    expect(reminder!.afterSeconds).toBeGreaterThanOrEqual(4 * 3600);
+    await h.services.reminders.onCheckinSaved(s.value.id);
+    expect(h.notifications.scheduled.find((n) => n.title === 'Morning check-in')).toBeUndefined();
+  });
+
+  it('does not schedule after an alcohol-free session', async () => {
+    const h = await createHarness();
+    const s = await h.services.sessions.startSession({ origin: 'phone' });
+    if (!s.ok) throw new Error();
+    h.clock.advance(MINUTE_MS);
+    await h.services.sessions.logDrink({ beverage: { id: null, name: 'Water', category: 'water' }, measurement: water, source: 'manual' });
+    await h.services.sessions.end(s.value.id);
+    await flush();
+    expect(h.notifications.scheduled).toHaveLength(0);
+  });
+});

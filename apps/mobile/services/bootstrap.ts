@@ -52,6 +52,7 @@ async function run(): Promise<AppServices> {
     watchTransport: createNativeWatchTransport(),
     createApi: (deviceId) =>
       env.apiUrl ? new ApiClient(env.apiUrl, secureTokenStore, deviceId, (u, i) => fetch(u, i), 15_000, env.appEnv === 'development') : null,
+    notificationsAllowed: () => useAppStore.getState().hasConsent('notifications'),
     hasHealthConsent: () => useAppStore.getState().hasConsent('healthkit'),
     haptic: () => void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => undefined),
   });

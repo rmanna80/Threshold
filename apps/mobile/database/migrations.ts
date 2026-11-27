@@ -221,6 +221,32 @@ CREATE TABLE IF NOT EXISTS processed_messages (
 );
 `,
   },
+  {
+    version: 2,
+    name: 'session_features_and_anomalies',
+    sql: `
+CREATE TABLE IF NOT EXISTS session_features (
+  session_id TEXT PRIMARY KEY NOT NULL REFERENCES drinking_sessions(id) ON DELETE CASCADE,
+  feature_version TEXT NOT NULL,
+  json TEXT NOT NULL,
+  data_quality REAL NOT NULL,
+  computed_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS anomaly_events (
+  id TEXT PRIMARY KEY NOT NULL,
+  kind TEXT NOT NULL,
+  measurement_id TEXT,
+  session_id TEXT REFERENCES drinking_sessions(id) ON DELETE SET NULL,
+  direction TEXT NOT NULL,
+  robust_z REAL,
+  measured_at INTEGER NOT NULL,
+  detected_at INTEGER NOT NULL,
+  description TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_anomaly_events_time ON anomaly_events(detected_at);
+`,
+  },
 ];
 
 export async function migrate(db: SqlDatabase, now: () => number = Date.now): Promise<number[]> {

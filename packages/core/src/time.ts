@@ -89,3 +89,15 @@ export function formatAge(measuredAt: EpochMs, now: EpochMs): string {
   if (diff < DAY_MS) return `${Math.floor(diff / HOUR_MS)} h ago`;
   return `${Math.floor(diff / DAY_MS)} d ago`;
 }
+
+/**
+ * When to suggest the morning check-in after a session: the first `hour`:00 local time that is
+ * at least `minGapHours` after the session ended.
+ */
+export function nextCheckinReminderAt(endedAt: EpochMs, tzOffsetMin: TzOffsetMin, hour = 9, minGapHours = 4): EpochMs {
+  const earliest = endedAt + minGapHours * HOUR_MS;
+  const local = new Date(earliest + tzOffsetMin * MINUTE_MS);
+  let candidate = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), hour) - tzOffsetMin * MINUTE_MS;
+  if (candidate < earliest) candidate += DAY_MS;
+  return candidate;
+}

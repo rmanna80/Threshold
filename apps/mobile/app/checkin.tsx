@@ -33,7 +33,7 @@ export default function Checkin() {
   const save = async () => {
     setBusy(true);
     try {
-      const { repos, clock, outbox } = getServices();
+      const { repos, clock, outbox, reminders } = getServices();
       const now = clock.now();
       const checkin: RecoveryCheckin = {
         id: newId(),
@@ -49,6 +49,7 @@ export default function Checkin() {
       };
       await repos.checkins.upsert(checkin);
       await outbox.record('recovery_checkin', checkin, now);
+      await reminders.onCheckinSaved(checkin.sessionId);
       void qc.invalidateQueries({ queryKey: ['analytics'] });
       void qc.invalidateQueries({ queryKey: ['history'] });
       router.back();

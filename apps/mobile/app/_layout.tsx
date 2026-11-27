@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppText, Button } from '../components/ui';
+import { useNotificationRouting } from '../hooks/useNotificationRouting';
 import { bootstrap } from '../services/bootstrap';
 import { queryClient } from '../services/queryClient';
 import { colors, spacing } from '../theme';
@@ -15,6 +16,7 @@ void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
 export default function RootLayout() {
   const [state, setState] = useState<'booting' | 'ready' | 'error'>('booting');
+  useNotificationRouting(state === 'ready');
 
   const run = useCallback(() => {
     bootstrap()

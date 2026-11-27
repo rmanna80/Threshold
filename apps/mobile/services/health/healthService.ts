@@ -4,6 +4,8 @@ import {
   MINUTE_MS,
   assessDeviation,
   circadianFilter,
+  describeDeviation,
+  newId,
   computeBaseline,
   summarizeSleep,
   type BaselineSample,
@@ -128,6 +130,39 @@ export class HealthService {
   }
 
   /**
+   * Latest heart-rate reading with an honest description: age, motion context and comparison to
+   * the user's own sedentary baseline at a similar time of day (only when that baseline is mature).
+   */
+  async heartRateSummary(): Promise<{ value: number; measuredAt: number; context: string; description: string; mature: boolean } | null> {
+    if (!(await this.isAvailable())) return null;
+    await this.refreshRecentHeartRate().catch(() => undefined);
+    const now = this.clock.now();
+    const latest = await this.repos.measurements.latest('heart_rate');
+    if (!latest || now - latest.endAt > 6 * HOUR_MS) return null;
+    const tz = this.clock.tzOffsetMin(latest.startAt);
+    const hour = new Date(latest.startAt + tz * MINUTE_MS).getUTCHours();
+    const history = await this.repos.measurements.list(['heart_rate'], now - 30 * DAY_MS, now - 12 * HOUR_MS, 'resting');
+    const sessions = await this.repos.sessions.listBetween(now - 31 * DAY_MS, now);
+    const baseline = computeBaseline({
+      kind: 'heart_rate',
+      context: 'resting',
+      unit: 'count/min',
+      samples: circadianFilter(this.toSamples(history), hour, 2),
+      now,
+      exclude: sessions.map((s) => ({ from: s.startedAt, to: (s.endedAt ?? now) + 12 * HOUR_MS })),
+    });
+    // Active readings are not compared with a resting baseline.
+    const assessment =
+      latest.context === 'active'
+        ? null
+        : assessDeviation(latest.value, latest.endAt, baseline, now);
+    const description = assessment
+      ? describeDeviation('heart_rate', assessment, latest.endAt, now)
+      : 'This reading was taken while you were moving, so it isn’t compared with your resting range.';
+    return { value: latest.value, measuredAt: latest.endAt, context: latest.context, description, mature: baseline.maturity !== 'insufficient' };
+  }
+
+  /**
    * Physiology context for interventions: the latest *sedentary* heart-rate sample from the last
    * 30 minutes compared with the user's sedentary heart rate at a similar time of day.
    */
@@ -151,6 +186,20 @@ export class HealthService {
     });
     const a = assessDeviation(latest.value, latest.endAt, baseline, now);
     if (a.direction === 'unknown') return { heartRate: null };
+    if (a.direction !== 'typical') {
+      const open = await this.repos.sessions.getOpen();
+      await this.repos.anomalies.insertOnce({
+        id: newId(),
+        kind: 'heart_rate',
+        measurementId: latest.externalId ?? latest.id,
+        sessionId: open?.id ?? null,
+        direction: a.direction,
+        robustZ: a.robustZ,
+        measuredAt: latest.endAt,
+        detectedAt: now,
+        description: describeDeviation('heart_rate', a, latest.endAt, now),
+      });
+    }
     return {
       heartRate: {
         direction: a.direction,

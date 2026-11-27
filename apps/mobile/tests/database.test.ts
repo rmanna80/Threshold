@@ -9,7 +9,7 @@ const US = resolveStandardDrinkDefinition('US');
 describe('migrations', () => {
   it('applies all migrations once and is idempotent', async () => {
     const db = await createTestDatabase({ migrate: false });
-    expect(await migrate(db, () => T0)).toEqual([LATEST_SCHEMA_VERSION]);
+    expect(await migrate(db, () => T0)).toEqual([1, LATEST_SCHEMA_VERSION]);
     expect(await migrate(db, () => T0)).toEqual([]);
     const tables = await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name");
     const names = tables.map((t) => t.name);
