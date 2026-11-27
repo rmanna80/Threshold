@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { AppText, Button, Card } from '../../components/ui';
 import { OnboardingStep } from '../../features/onboarding/OnboardingStep';
+import { featureFlags } from '../../config/featureFlags';
 import { getServices } from '../../services/container';
 import { useAppStore } from '../../stores/appStore';
 import { colors, spacing } from '../../theme';
@@ -94,7 +95,7 @@ export default function Permissions() {
           setHealth('declined');
         }}
       />
-      {hasWatch !== false ? (
+      {hasWatch !== false && featureFlags.automaticDetectionPrompt ? (
         <PermissionCard
           title="Watch motion (experimental)"
           why="Lets your Apple Watch notice repeated drinking-like wrist movements while the Threshold watch app is open and ask whether you want to start a session."

@@ -106,7 +106,9 @@ export function checkinsCsv(checkins: Awaited<ReturnType<AppServices['repos']['c
 }
 
 /** Irreversibly removes all user data from the local database. */
-export async function deleteAllLocalData(services: Pick<AppServices, 'db'>): Promise<void> {
+export async function deleteAllLocalData(services: Pick<AppServices, 'db'> & Partial<Pick<AppServices, 'research'>>): Promise<void> {
+  // Research recordings live as files, not rows: delete them (and stop accepting new ones) first.
+  await services.research?.withdraw();
   await services.db.withTransactionAsync(async () => {
     for (const t of USER_DATA_TABLES) await services.db.execAsync(`DELETE FROM ${t};`);
   });

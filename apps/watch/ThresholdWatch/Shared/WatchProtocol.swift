@@ -24,8 +24,12 @@ public enum WatchProtocol {
         public var automaticDetectionEnabled: Bool
         /// Present only in research builds when the participant enabled recording.
         public var researchRecording: Bool?
+        /// Pseudonymous study code (research builds only).
+        public var participantId: String?
+        /// "left" or "right" (research builds only).
+        public var dominantHand: String?
 
-        public static let fallback = Prefs(standardDrinkGrams: 14, label: "standard drink", labelPlural: "standard drinks", notificationFrequency: .standard, quietMode: false, unitSystem: "us_customary", automaticDetectionEnabled: false, researchRecording: nil)
+        public static let fallback = Prefs(standardDrinkGrams: 14, label: "standard drink", labelPlural: "standard drinks", notificationFrequency: .standard, quietMode: false, unitSystem: "us_customary", automaticDetectionEnabled: false, researchRecording: nil, participantId: nil, dominantHand: nil)
     }
 
     public struct Context: Codable, Equatable, Sendable {

@@ -55,6 +55,10 @@ struct StartView: View {
                 .foregroundStyle(Theme.background)
                 .accessibilityHint("Starts tracking your drinks for this evening")
                 SyncStatusLine()
+                if model.prefs.researchRecording == true {
+                    NavigationLink("Research recorder") { ResearchView() }
+                        .font(.footnote)
+                }
             }
             .padding(.horizontal, 4)
         }

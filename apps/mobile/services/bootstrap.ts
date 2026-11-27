@@ -13,6 +13,7 @@ import { HealthKitProvider } from './health/healthkitProvider';
 import { configureForegroundPresentation, expoNotificationGateway } from './notifications';
 import { ApiClient } from './sync/apiClient';
 import { secureTokenStore } from './sync/secureTokenStore';
+import { createNativeResearchStore } from './research/researchStore';
 import { createNativeWatchTransport } from './watch/watchBridge';
 import { env } from '../config/env';
 import { AppState } from 'react-native';
@@ -50,6 +51,10 @@ async function run(): Promise<AppServices> {
     notifications: expoNotificationGateway,
     health: new HealthKitProvider(),
     watchTransport: createNativeWatchTransport(),
+    researchStore: createNativeResearchStore(),
+    researchEnabled: featureFlags.gestureResearchMode,
+    automaticDetectionAllowed: featureFlags.automaticDetectionPrompt,
+    recordConsent: (type, granted, version) => useAppStore.getState().recordConsent(type, granted, version),
     createApi: (deviceId) =>
       env.apiUrl ? new ApiClient(env.apiUrl, secureTokenStore, deviceId, (u, i) => fetch(u, i), 15_000, env.appEnv === 'development') : null,
     notificationsAllowed: () => useAppStore.getState().hasConsent('notifications'),

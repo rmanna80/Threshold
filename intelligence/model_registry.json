@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "notes": "No models have been trained or validated. Entries are added by training/registry.py; only promote() can mark a model validated.",
+  "models": []
+}

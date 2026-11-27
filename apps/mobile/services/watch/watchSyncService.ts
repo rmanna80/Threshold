@@ -7,6 +7,13 @@ import type { SessionService } from '../sessionService';
 import { decodeInbound, encodeContext, type WatchBeverage, type WatchContext } from './protocol';
 import type { WatchState, WatchTransport } from './watchBridge';
 
+export interface WatchSyncOptions {
+  /** Gesture prompts may be enabled on the watch only when the feature flag allows it. */
+  automaticDetectionAllowed: boolean;
+  /** Research recorder settings for the watch (null hides the recorder). */
+  getResearchPrefs?: () => { researchRecording: true; participantId: string; dominantHand: 'left' | 'right' } | null;
+}
+
 /**
  * Keeps the watch in step with the phone:
  *  - Phone → watch: the latest state (open session, its drinks, goals, preferences, recent
@@ -27,6 +34,7 @@ export class WatchSyncService {
     private readonly deviceId: string,
     private readonly getPreferences: () => UserPreferences,
     private readonly getGoals: () => UserGoals,
+    private readonly options: WatchSyncOptions = { automaticDetectionAllowed: false },
   ) {}
 
   get available(): boolean {
@@ -91,7 +99,8 @@ export class WatchSyncService {
         notificationFrequency: prefs.notificationFrequency,
         quietMode: prefs.quietMode,
         unitSystem: prefs.unitSystem,
-        automaticDetectionEnabled: prefs.automaticDetectionEnabled,
+        automaticDetectionEnabled: this.options.automaticDetectionAllowed && prefs.automaticDetectionEnabled,
+        ...(this.options.getResearchPrefs?.() ?? {}),
       },
       beverages,
     };

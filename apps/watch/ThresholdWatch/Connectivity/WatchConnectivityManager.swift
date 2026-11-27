@@ -8,6 +8,7 @@ import WatchConnectivity
 final class WatchConnectivityManager: NSObject, WCSessionDelegate {
     var onContext: (([String: Any]) -> Void)?
     var onTransferFinished: ((String, Bool) -> Void)?
+    var onFileTransferFinished: (() -> Void)?
     var onReachabilityChange: ((Bool) -> Void)?
 
     func activate() {
@@ -60,6 +61,15 @@ final class WatchConnectivityManager: NSObject, WCSessionDelegate {
     func session(_ session: WCSession, didFinish userInfoTransfer: WCSessionUserInfoTransfer, error: Error?) {
         guard let id = userInfoTransfer.userInfo["id"] as? String else { return }
         DispatchQueue.main.async { self.onTransferFinished?(id, error == nil) }
+    }
+
+    func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
+        // Research recordings are removed from the watch once the phone has them; on failure the
+        // file stays and the participant can retry from the Research screen.
+        if error == nil, (fileTransfer.file.metadata?["type"] as? String) == "research_recording" {
+            try? FileManager.default.removeItem(at: fileTransfer.file.fileURL)
+        }
+        DispatchQueue.main.async { self.onFileTransferFinished?() }
     }
 
     func sessionReachabilityDidChange(_ session: WCSession) {

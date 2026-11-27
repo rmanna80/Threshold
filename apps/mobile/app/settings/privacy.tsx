@@ -49,15 +49,21 @@ export default function PrivacySettings() {
           onValueChange={(v) => void toggleHealth(v)}
         />
         <ToggleRow label="Notifications" description="Pacing and goal reminders." value={granted('notifications')} onValueChange={(v) => void toggleNotifications(v)} />
-        <ToggleRow
-          label="Watch motion (experimental)"
-          description="Drinking-like gesture prompts while the watch app is open. Never counts drinks on its own."
-          value={prefs.automaticDetectionEnabled}
-          onValueChange={async (v) => {
-            await recordConsent('automatic_detection', v);
-            await savePreferences({ automaticDetectionEnabled: v });
-          }}
-        />
+        {featureFlags.automaticDetectionPrompt ? (
+          <ToggleRow
+            label="Watch motion (experimental)"
+            description="Drinking-like gesture prompts while the watch app is open. Never counts drinks on its own."
+            value={prefs.automaticDetectionEnabled}
+            onValueChange={async (v) => {
+              await recordConsent('automatic_detection', v);
+              await savePreferences({ automaticDetectionEnabled: v });
+            }}
+          />
+        ) : (
+          <AppText variant="footnote" color={colors.textTertiary}>
+            Watch gesture prompts are not available in this version: they stay off until a gesture model passes validation on real, consented recordings.
+          </AppText>
+        )}
       </Card>
 
       <SectionHeader title="Sharing" />

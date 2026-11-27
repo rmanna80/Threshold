@@ -14,6 +14,8 @@ final class WatchSessionModel {
     private let store: WatchStore
     private let connectivity: WatchConnectivityManager
     private let policy = InterventionPolicy()
+    /// Called on the main actor when a research file transfer finishes (success or failure).
+    @ObservationIgnored var fileTransfersChanged: (() -> Void)?
 
     init(store: WatchStore = WatchStore(), connectivity: WatchConnectivityManager = WatchConnectivityManager()) {
         self.store = store
@@ -22,6 +24,7 @@ final class WatchSessionModel {
         // The connectivity manager always invokes these callbacks on the main queue.
         connectivity.onContext = { [weak self] ctx in MainActor.assumeIsolated { self?.applyContext(ctx) } }
         connectivity.onTransferFinished = { [weak self] id, ok in MainActor.assumeIsolated { self?.transferFinished(id: id, ok: ok) } }
+        connectivity.onFileTransferFinished = { [weak self] in MainActor.assumeIsolated { self?.fileTransfersChanged?() } }
         connectivity.onReachabilityChange = { [weak self] r in
             MainActor.assumeIsolated {
                 self?.reachable = r

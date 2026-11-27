@@ -26,7 +26,7 @@ export interface AppState {
   confirmEligibility(country: string, confirmed: boolean): Promise<ValidationIssue[]>;
   savePreferences(patch: Partial<Omit<UserPreferences, 'updatedAt'>>): Promise<void>;
   saveGoals(patch: Partial<Omit<UserGoals, 'updatedAt'>>): Promise<ValidationIssue[]>;
-  recordConsent(type: ConsentType, granted: boolean): Promise<void>;
+  recordConsent(type: ConsentType, granted: boolean, version?: string): Promise<void>;
   completeOnboarding(): Promise<void>;
   hasConsent(type: ConsentType): boolean;
 }
@@ -96,9 +96,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     return [];
   },
 
-  async recordConsent(type, granted) {
+  async recordConsent(type, granted, version = CONSENT_VERSION) {
     const { repos, clock } = getServices();
-    const record: ConsentRecord = { id: newId(), type, granted, version: CONSENT_VERSION, recordedAt: clock.now() };
+    const record: ConsentRecord = { id: newId(), type, granted, version, recordedAt: clock.now() };
     await repos.settings.recordConsent(record);
     set({ consents: { ...get().consents, [type]: record } });
   },

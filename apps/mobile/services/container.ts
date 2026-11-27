@@ -1,5 +1,5 @@
 import { newId } from '@threshold/core';
-import type { UserGoals, UserPreferences } from '@threshold/shared-types';
+import type { ConsentType, UserGoals, UserPreferences } from '@threshold/shared-types';
 import { createRepositories, type Repositories } from '../database/repositories';
 import type { SqlDatabase } from '../database/types';
 import type { Clock } from './clock';
@@ -10,6 +10,8 @@ import type { NotificationGateway } from './notifications';
 import { InterventionService } from './interventionService';
 import { Outbox } from './outbox';
 import { RecoveryReminderService } from './recoveryReminderService';
+import { ResearchService } from './research/researchService';
+import type { ResearchFileStore } from './research/researchStore';
 import { SessionService } from './sessionService';
 import type { ApiClient } from './sync/apiClient';
 import { SyncService } from './sync/syncService';
@@ -35,6 +37,7 @@ export interface AppServices {
   api: ApiClient | null;
   sync: SyncService | null;
   reminders: RecoveryReminderService;
+  research: ResearchService;
 }
 
 export interface CreateServicesParams {
@@ -50,6 +53,13 @@ export interface CreateServicesParams {
   watchTransport: WatchTransport;
   createApi?: (deviceId: string) => ApiClient | null;
   notificationsAllowed?: () => boolean;
+  researchStore: ResearchFileStore;
+  /** Research build flag (feature flag `gestureResearchMode`). */
+  researchEnabled: boolean;
+  /** Feature flag `automaticDetectionPrompt`. */
+  automaticDetectionAllowed?: boolean;
+  /** Persists a consent record (defaults to writing directly to the repository). */
+  recordConsent?: (type: ConsentType, granted: boolean, version: string) => Promise<void>;
 }
 
 export async function getOrCreateDeviceId(repos: Repositories, now: number): Promise<string> {
@@ -83,6 +93,13 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
   sessions.subscribe((change) => interventions.onSessionChange(change).then(() => undefined));
   const reminders = new RecoveryReminderService(repos, params.notifications, params.clock, () => params.notificationsAllowed?.() ?? true);
   sessions.subscribe((change) => reminders.onSessionChange(change));
+  const recordConsent =
+    params.recordConsent ??
+    (async (type: ConsentType, granted: boolean, version: string) => {
+      await repos.settings.recordConsent({ id: newId(), type, granted, version, recordedAt: params.clock.now() });
+    });
+  const research = new ResearchService(repos, params.researchStore, params.clock, params.researchEnabled, recordConsent);
+  await research.load();
   const watchSync = new WatchSyncService(
     params.watchTransport,
     repos,
@@ -91,7 +108,9 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
     deviceId,
     () => params.getPreferences() ?? defaultPreferences(params.clock.now(), null),
     () => params.getGoals() ?? defaultGoals(params.clock.now()),
+    { automaticDetectionAllowed: params.automaticDetectionAllowed ?? false, getResearchPrefs: () => research.watchPrefs() },
   );
+  research.subscribe(() => void watchSync.pushContext());
   const api = params.cloudSyncAvailable ? (params.createApi?.(deviceId) ?? null) : null;
   const sync = api ? new SyncService(api, repos, sessions, outbox, params.clock, deviceId) : null;
   return {
@@ -109,6 +128,7 @@ export async function createServices(params: CreateServicesParams): Promise<AppS
     api,
     sync,
     reminders,
+    research,
   };
 }
 

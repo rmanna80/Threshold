@@ -182,7 +182,7 @@ class InterventionEventPayload(CamelModel):
 
 
 ConsentType = Literal[
-    "health_alcohol_data_processing", "healthkit", "motion", "notifications", "cloud_sync", "research_upload", "crash_reporting", "automatic_detection"
+    "health_alcohol_data_processing", "healthkit", "motion", "notifications", "cloud_sync", "research_upload", "research_recording", "crash_reporting", "automatic_detection"
 ]
 
 

@@ -150,6 +150,7 @@ export const consentRecordSchema = z.object({
     'notifications',
     'cloud_sync',
     'research_upload',
+    'research_recording',
     'crash_reporting',
     'automatic_detection',
   ]),

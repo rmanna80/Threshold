@@ -31,6 +31,10 @@ export interface WatchContext {
     quietMode: boolean;
     unitSystem: UserPreferences['unitSystem'];
     automaticDetectionEnabled: boolean;
+    /** Present only in research builds while an enrolled participant has recording switched on. */
+    researchRecording?: true;
+    participantId?: string;
+    dominantHand?: 'left' | 'right';
   };
   beverages: WatchBeverage[];
 }

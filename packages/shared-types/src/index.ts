@@ -243,6 +243,8 @@ export type ConsentType =
   | 'notifications'
   | 'cloud_sync'
   | 'research_upload'
+  /** Labelled watch motion recording for gesture research (research builds only). */
+  | 'research_recording'
   | 'crash_reporting'
   | 'automatic_detection';
 
