@@ -18,6 +18,7 @@ final class ResearchRecording: @unchecked Sendable {
     private var droppedEstimate = 0.0
     private let queue = DispatchQueue(label: "threshold.research.write")
 
+    @MainActor
     init(label: String, participantId: String, dominantHand: String, protocolId: String = "gesture-v1") throws {
         guard Self.labels.contains(label) else { throw CocoaError(.featureUnsupported) }
         self.label = label
