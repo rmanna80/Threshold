@@ -1,0 +1,8 @@
+# gitleaks configuration (used by .github/workflows/security.yml).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives"
+# Beverage catalog template keys such as 'wine_large_9oz' trip the generic-api-key rule.
+paths = ['''packages/core/src/catalog\.ts''']

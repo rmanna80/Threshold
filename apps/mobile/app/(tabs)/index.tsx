@@ -123,6 +123,8 @@ export default function Today() {
           <AppText>{observation}</AppText>
         </Card>
       ) : null}
+
+      <Button label="Emergency information" variant="ghost" onPress={() => router.push('/emergency')} accessibilityHint="Signs of alcohol poisoning and who to call" />
     </Screen>
   );
 }

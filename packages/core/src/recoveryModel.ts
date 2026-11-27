@@ -1,3 +1,4 @@
+import { assertSafeMessage } from './safety';
 import { SESSION_FEATURE_NAMES, SESSION_FEATURE_VERSION, type SessionFeatures } from './sessionFeatures';
 
 /**
@@ -52,6 +53,15 @@ export const WITHHELD_MESSAGES: Readonly<Record<WithheldReason, string>> = Objec
   low_input_quality: 'Not enough information about this evening for a prediction.',
   no_drinks_logged: 'No alcoholic drinks were logged for this session.',
 });
+
+/** Shown with every displayed estimate. Passes the safety guard (tested). */
+export const SHOWN_PREDICTION_MESSAGE =
+  'A statistical estimate from a validated model, not medical advice. It can be wrong. Never use it to decide whether to drive.';
+
+/** Plain-language outcome, e.g. "a morning you rate 5/10 or worse overall". */
+export function outcomeDescription(severityThreshold: number): string {
+  return `a morning you rate ${severityThreshold}/10 or worse overall`;
+}
 
 const sigmoid = (z: number) => 1 / (1 + Math.exp(-z));
 
@@ -116,7 +126,8 @@ export type RecoveryDecision =
       interval: [number, number] | null;
       personalized: boolean;
       message: string;
-      outcome: string | null;
+      /** Plain-language description of what the probability refers to. */
+      outcome: string;
     };
 
 function withheld(reason: WithheldReason): RecoveryDecision {
@@ -162,7 +173,7 @@ export function decideRecoveryPrediction(params: {
     probability,
     interval,
     personalized: offset !== 0,
-    outcome: manifest.outcome,
-    message: 'A statistical estimate from a validated model, not a diagnosis. It can be wrong, and it says nothing about whether you are safe to drive.',
+    outcome: assertSafeMessage(outcomeDescription(manifest.severityThreshold)),
+    message: assertSafeMessage(SHOWN_PREDICTION_MESSAGE),
   };
 }

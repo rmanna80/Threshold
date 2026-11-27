@@ -39,3 +39,10 @@ decisions that shape the codebase and the acceptance criteria used to call each 
 | 5 Gesture research | Watch research recorder; signal processing + features with tests; participant-separated training/evaluation for 8 model families; calibration; Core ML export interface; no production claims. |
 | 6 Recovery intelligence | Session feature generation (TS/Python parity); outcome collection; transparent models; calibration/Brier/AUROC; hierarchical personalization; model registry with validation gating; cold-start "Insufficient data" behaviour. |
 | 7 Production readiness | STRIDE threat model; privacy controls; export (CSV/JSON) and deletion; entitlements architecture with billing disabled; CI workflows; full documentation set with an honest status matrix. |
+
+## Status (2026-11-27)
+
+All seven phases have been implemented and committed. What "implemented" means for each capability —
+tested here, needing hardware, needing data, or deliberately disabled — is tracked in the status
+matrix in the root `README.md`. Items that require people, devices, data or authorisation are listed
+in `ROADMAP.md`.

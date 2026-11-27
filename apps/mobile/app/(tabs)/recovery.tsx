@@ -89,7 +89,7 @@ export default function Recovery() {
         ) : decision?.status === 'shown' ? (
           <View style={{ gap: spacing.xs }}>
             <AppText>
-              Estimated chance of {decision.outcome ?? 'a harder morning'}: {Math.round(decision.probability * 100)}%
+              Estimated chance of {decision.outcome}: {Math.round(decision.probability * 100)}%
               {decision.interval ? ` (model range ${Math.round(decision.interval[0] * 100)}–${Math.round(decision.interval[1] * 100)}%)` : ''}
             </AppText>
             <AppText variant="footnote" color={colors.textSecondary}>

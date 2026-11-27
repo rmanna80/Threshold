@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { AppText, Card, ChoiceList, ToggleRow } from '../../components/ui';
 import { featureFlags } from '../../config/featureFlags';
+import { crashTransport } from '../../config/crashReporting';
 import { OnboardingStep } from '../../features/onboarding/OnboardingStep';
 import { useAppStore } from '../../stores/appStore';
 import { colors } from '../../theme';
@@ -61,12 +62,14 @@ export default function Privacy() {
           value={research}
           onValueChange={setResearch}
         />
-        <ToggleRow
-          label="Crash reports (optional)"
-          description="Anonymous crash diagnostics with drink and health details removed."
-          value={crash}
-          onValueChange={setCrash}
-        />
+        {crashTransport.configured ? (
+          <ToggleRow
+            label="Crash reports (optional)"
+            description="Crash diagnostics with drink, health and check-in details removed."
+            value={crash}
+            onValueChange={setCrash}
+          />
+        ) : null}
       </Card>
       <Card title="Consent" tone="accent">
         <AppText color={colors.textSecondary}>

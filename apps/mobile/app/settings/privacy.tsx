@@ -2,6 +2,7 @@ import type { ConsentType } from '@threshold/shared-types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Linking } from 'react-native';
 import { AppText, Button, Card, Screen, SectionHeader, ToggleRow } from '../../components/ui';
+import { crashTransport } from '../../config/crashReporting';
 import { featureFlags } from '../../config/featureFlags';
 import { getServices } from '../../services/container';
 import { useAppStore } from '../../stores/appStore';
@@ -88,15 +89,21 @@ export default function PrivacySettings() {
             await savePreferences({ researchParticipation: v });
           }}
         />
-        <ToggleRow
-          label="Crash reports"
-          description="Diagnostics with drink and health details removed."
-          value={prefs.crashReportingEnabled}
-          onValueChange={async (v) => {
-            await recordConsent('crash_reporting', v);
-            await savePreferences({ crashReportingEnabled: v });
-          }}
-        />
+        {crashTransport.configured ? (
+          <ToggleRow
+            label="Crash reports"
+            description="Diagnostics with drink, health and check-in details removed."
+            value={prefs.crashReportingEnabled}
+            onValueChange={async (v) => {
+              await recordConsent('crash_reporting', v);
+              await savePreferences({ crashReportingEnabled: v });
+            }}
+          />
+        ) : (
+          <AppText variant="footnote" color={colors.textTertiary}>
+            Crash reports: this build has no crash-reporting service, so no diagnostics are sent.
+          </AppText>
+        )}
       </Card>
 
       <SectionHeader title="Commitments" />

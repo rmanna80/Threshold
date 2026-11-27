@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { WITHHELD_MESSAGES, decideRecoveryPrediction, evaluateManifest, mapOffset, type RecoveryModelManifest } from '../src/recoveryModel';
+import { SHOWN_PREDICTION_MESSAGE, WITHHELD_MESSAGES, decideRecoveryPrediction, evaluateManifest, mapOffset, outcomeDescription, type RecoveryModelManifest } from '../src/recoveryModel';
+import { checkMessage } from '../src/safety';
 import { buildSessionFeatures } from '../src/sessionFeatures';
 
 const vec = JSON.parse(readFileSync(join(__dirname, '..', 'test-vectors', 'recovery_model.json'), 'utf8')) as {
@@ -60,7 +61,16 @@ describe('prediction gate', () => {
       expect(d.probability).toBeLessThan(1);
       expect(d.personalized).toBe(true);
       expect(d.interval).toBeNull(); // the fixture has no bootstrap models
-      expect(d.message).toMatch(/not a diagnosis/);
+      expect(d.message).toMatch(/not medical advice/);
+      expect(d.outcome).toBe('a morning you rate 5/10 or worse overall');
+    }
+  });
+});
+
+describe('prediction copy', () => {
+  it('passes the safety guard', () => {
+    for (const m of [...Object.values(WITHHELD_MESSAGES), SHOWN_PREDICTION_MESSAGE, outcomeDescription(5)]) {
+      expect(checkMessage(m).violations).toEqual([]);
     }
   });
 });

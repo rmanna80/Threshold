@@ -13,7 +13,9 @@ import { HealthKitProvider } from './health/healthkitProvider';
 import { configureForegroundPresentation, expoNotificationGateway } from './notifications';
 import { ApiClient } from './sync/apiClient';
 import { secureTokenStore } from './sync/secureTokenStore';
+import { crashTransport } from '../config/crashReporting';
 import { BUNDLED_RECOVERY_MODEL } from '../config/recoveryModel';
+import { CrashReporter, installGlobalHandler } from './crashReporting';
 import { createNativeResearchStore } from './research/researchStore';
 import { createNativeWatchTransport } from './watch/watchBridge';
 import { env } from '../config/env';
@@ -38,6 +40,10 @@ export function bootstrap(): Promise<AppServices> {
 
 async function run(): Promise<AppServices> {
   setIdGenerator(() => Crypto.randomUUID());
+  // Opt-in only, scrubbed, and a no-op in this build (no crash-reporting service is configured).
+  installGlobalHandler(
+    new CrashReporter(crashTransport, () => useAppStore.getState().preferences.crashReportingEnabled && useAppStore.getState().hasConsent('crash_reporting')),
+  );
   const { db, encrypted } = await openAppDatabase();
   const country = getLocales()[0]?.regionCode ?? null;
   // Seed pre-hydration defaults from device region (replaced by stored prefs if they exist).
@@ -93,12 +99,23 @@ async function run(): Promise<AppServices> {
     });
     void trySync();
   }
-  // Health sync runs in the background; failures never block start-up.
-  void services.healthService
-    .sync(30)
-    .then(() => services.recovery.refreshRecent(14)) // new sleep/physiology changes session features
-    .then(() => queryClient.invalidateQueries({ queryKey: ['health'] }))
-    .then(() => queryClient.invalidateQueries({ queryKey: ['recovery'] }))
-    .catch(() => undefined);
+  // Health sync runs in the background on launch and when the app returns to the foreground
+  // (at most every 15 minutes); failures never block start-up.
+  let lastHealthSync = 0;
+  const syncHealth = () => {
+    const now = systemClock.now();
+    if (now - lastHealthSync < 15 * 60_000) return;
+    lastHealthSync = now;
+    void services.healthService
+      .sync(30)
+      .then(() => services.recovery.refreshRecent(14)) // new sleep/physiology changes session features
+      .then(() => queryClient.invalidateQueries({ queryKey: ['health'] }))
+      .then(() => queryClient.invalidateQueries({ queryKey: ['recovery'] }))
+      .catch(() => undefined);
+  };
+  syncHealth();
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') syncHealth();
+  });
   return services;
 }
