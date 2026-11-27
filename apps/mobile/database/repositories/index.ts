@@ -1,5 +1,7 @@
 import type { SqlDatabase } from '../types';
 import { BeverageRepository, DrinkRepository } from './drinks';
+import { CheckinRepository, InterventionRepository } from './interventions';
+import { BaselineRepository, MeasurementRepository } from './measurements';
 import { SessionRepository } from './sessions';
 import { KvRepository, SettingsRepository } from './settings';
 import { ProcessedMessageRepository, SyncQueueRepository } from './syncQueue';
@@ -12,6 +14,10 @@ export interface Repositories {
   beverages: BeverageRepository;
   syncQueue: SyncQueueRepository;
   processedMessages: ProcessedMessageRepository;
+  interventions: InterventionRepository;
+  checkins: CheckinRepository;
+  measurements: MeasurementRepository;
+  baselines: BaselineRepository;
 }
 
 export function createRepositories(db: SqlDatabase): Repositories {
@@ -23,7 +29,11 @@ export function createRepositories(db: SqlDatabase): Repositories {
     beverages: new BeverageRepository(db),
     syncQueue: new SyncQueueRepository(db),
     processedMessages: new ProcessedMessageRepository(db),
+    interventions: new InterventionRepository(db),
+    checkins: new CheckinRepository(db),
+    measurements: new MeasurementRepository(db),
+    baselines: new BaselineRepository(db),
   };
 }
 
-export { SessionRepository, DrinkRepository, BeverageRepository, SettingsRepository, KvRepository, SyncQueueRepository, ProcessedMessageRepository };
+export { MeasurementRepository, BaselineRepository, InterventionRepository, CheckinRepository, SessionRepository, DrinkRepository, BeverageRepository, SettingsRepository, KvRepository, SyncQueueRepository, ProcessedMessageRepository };

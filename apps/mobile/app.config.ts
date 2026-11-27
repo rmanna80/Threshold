@@ -14,6 +14,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   backgroundColor: '#0B0C0E',
   ios: {
     bundleIdentifier: BUNDLE_ID,
+    // Required for code signing of the app and the watch target (Xcode → Signing & Capabilities).
+    appleTeamId: process.env.APPLE_TEAM_ID,
     supportsTablet: false,
     deploymentTarget: '17.0',
     infoPlist: {

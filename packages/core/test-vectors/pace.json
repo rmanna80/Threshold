@@ -1,0 +1,595 @@
+{
+  "description": "Cross-language pace-engine vectors. Expected values come from an independent naive Python oracle (O(n^2)). Windows include events with consumedAt in (now - w, now + 5 min]. Thresholds: rapid >=2 std/30 min, >=3 std/60 min, >=3 drinks/30 min; concentrated >=4 std/120 min; cluster gap 20 min.",
+  "thresholds": {
+    "rapid30": 2,
+    "rapid60": 3,
+    "count30": 3,
+    "conc120": 4,
+    "gap": 20,
+    "skew": 300000
+  },
+  "cases": [
+    {
+      "name": "empty",
+      "description": "No drinks recorded.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764293400000,
+      "events": [],
+      "expected": {
+        "totalDrinks": 0,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 0,
+        "windows": {
+          "15": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": null,
+        "meanIntervalMs": null,
+        "maxDrinksInAny30Min": 0,
+        "maxStandardDrinksInAny60Min": 0.0,
+        "clusterCount": 0,
+        "rapidConsumption": false,
+        "rapidReasons": [],
+        "concentrated": false,
+        "clockSkewDetected": false
+      }
+    },
+    {
+      "name": "steady_beers",
+      "description": "Three standard drinks ~45 minutes apart.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764298200000,
+      "events": [
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292200000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764294900000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764294900000,
+          "counts": true
+        },
+        {
+          "id": "e3",
+          "consumedAt": 1764297600000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764297600000,
+          "counts": true
+        }
+      ],
+      "expected": {
+        "totalDrinks": 3,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 3.0,
+        "windows": {
+          "15": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 2,
+            "standardDrinks": 2.0,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 3,
+            "standardDrinks": 3.0,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": 600000,
+        "meanIntervalMs": 2700000.0,
+        "maxDrinksInAny30Min": 1,
+        "maxStandardDrinksInAny60Min": 2.0,
+        "clusterCount": 3,
+        "rapidConsumption": false,
+        "rapidReasons": [],
+        "concentrated": false,
+        "clockSkewDetected": false
+      }
+    },
+    {
+      "name": "rapid_shots",
+      "description": "Three standard drinks within 15 minutes.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764293100000,
+      "events": [
+        {
+          "id": "e1",
+          "consumedAt": 1764291900000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764291900000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764292320000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292320000,
+          "counts": true
+        },
+        {
+          "id": "e3",
+          "consumedAt": 1764292800000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292800000,
+          "counts": true
+        }
+      ],
+      "expected": {
+        "totalDrinks": 3,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 3.0,
+        "windows": {
+          "15": {
+            "drinkCount": 2,
+            "standardDrinks": 2.0,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 3,
+            "standardDrinks": 3.0,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 3,
+            "standardDrinks": 3.0,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 3,
+            "standardDrinks": 3.0,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": 300000,
+        "meanIntervalMs": 450000.0,
+        "maxDrinksInAny30Min": 3,
+        "maxStandardDrinksInAny60Min": 3.0,
+        "clusterCount": 1,
+        "rapidConsumption": true,
+        "rapidReasons": [
+          "std_30",
+          "std_60",
+          "count_30"
+        ],
+        "concentrated": false,
+        "clockSkewDetected": false
+      }
+    },
+    {
+      "name": "out_of_order_duplicates_edits",
+      "description": "Late arrivals, duplicates, an edit, a stale revision and a deletion.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764295200000,
+      "events": [
+        {
+          "id": "e3",
+          "consumedAt": 1764294000000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764294000000,
+          "counts": true
+        },
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 1.5,
+          "ethanolGrams": 21.0,
+          "revision": 1,
+          "updatedAt": 1764292200000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764293100000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764293100000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764293100000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764293100000,
+          "counts": true
+        },
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 0.5,
+          "ethanolGrams": 7.0,
+          "revision": 2,
+          "updatedAt": 1764294600000,
+          "counts": true
+        },
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 1.5,
+          "ethanolGrams": 21.0,
+          "revision": 1,
+          "updatedAt": 1764292200000,
+          "counts": true
+        },
+        {
+          "id": "e4",
+          "consumedAt": 1764294300000,
+          "standardDrinks": 2.0,
+          "ethanolGrams": 28.0,
+          "revision": 2,
+          "updatedAt": 1764295200000,
+          "counts": false
+        },
+        {
+          "id": "e4",
+          "consumedAt": 1764294300000,
+          "standardDrinks": 2.0,
+          "ethanolGrams": 28.0,
+          "revision": 1,
+          "updatedAt": 1764294300000,
+          "counts": true
+        }
+      ],
+      "expected": {
+        "totalDrinks": 3,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 2.5,
+        "windows": {
+          "15": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 3,
+            "standardDrinks": 2.5,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 3,
+            "standardDrinks": 2.5,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": 1200000,
+        "meanIntervalMs": 900000.0,
+        "maxDrinksInAny30Min": 2,
+        "maxStandardDrinksInAny60Min": 2.5,
+        "clusterCount": 1,
+        "rapidConsumption": false,
+        "rapidReasons": [],
+        "concentrated": false,
+        "clockSkewDetected": false
+      }
+    },
+    {
+      "name": "unknown_strength",
+      "description": "Cocktails of unknown strength count as drinks but not standard drinks.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764293700000,
+      "events": [
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292200000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764292800000,
+          "standardDrinks": null,
+          "ethanolGrams": null,
+          "revision": 1,
+          "updatedAt": 1764292800000,
+          "counts": true
+        },
+        {
+          "id": "e3",
+          "consumedAt": 1764293400000,
+          "standardDrinks": null,
+          "ethanolGrams": null,
+          "revision": 1,
+          "updatedAt": 1764293400000,
+          "counts": true
+        }
+      ],
+      "expected": {
+        "totalDrinks": 3,
+        "totalUnknownStrength": 2,
+        "totalStandardDrinks": 1.0,
+        "windows": {
+          "15": {
+            "drinkCount": 1,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 1
+          },
+          "30": {
+            "drinkCount": 3,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 2
+          },
+          "60": {
+            "drinkCount": 3,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 2
+          },
+          "120": {
+            "drinkCount": 3,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 2
+          }
+        },
+        "timeSinceLastDrinkMs": 300000,
+        "meanIntervalMs": 600000.0,
+        "maxDrinksInAny30Min": 3,
+        "maxStandardDrinksInAny60Min": 1.0,
+        "clusterCount": 1,
+        "rapidConsumption": true,
+        "rapidReasons": [
+          "count_30"
+        ],
+        "concentrated": false,
+        "clockSkewDetected": false
+      }
+    },
+    {
+      "name": "clock_skew",
+      "description": "Second event is 20 minutes in the future (watch clock skew).",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764294600000,
+      "events": [
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292200000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764295800000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764295800000,
+          "counts": true
+        }
+      ],
+      "expected": {
+        "totalDrinks": 2,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 2.0,
+        "windows": {
+          "15": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 0,
+            "standardDrinks": 0,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": 2400000,
+        "meanIntervalMs": null,
+        "maxDrinksInAny30Min": 1,
+        "maxStandardDrinksInAny60Min": 1.0,
+        "clusterCount": 1,
+        "rapidConsumption": false,
+        "rapidReasons": [],
+        "concentrated": false,
+        "clockSkewDetected": true
+      }
+    },
+    {
+      "name": "concentrated_two_hours",
+      "description": "4.2 standard drinks within two hours without a rapid 30/60-minute burst.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764298500000,
+      "events": [
+        {
+          "id": "e1",
+          "consumedAt": 1764291600000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764291600000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764293700000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764293700000,
+          "counts": true
+        },
+        {
+          "id": "e3",
+          "consumedAt": 1764295800000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764295800000,
+          "counts": true
+        },
+        {
+          "id": "e4",
+          "consumedAt": 1764297900000,
+          "standardDrinks": 1.2,
+          "ethanolGrams": 16.8,
+          "revision": 1,
+          "updatedAt": 1764297900000,
+          "counts": true
+        }
+      ],
+      "expected": {
+        "totalDrinks": 4,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 4.2,
+        "windows": {
+          "15": {
+            "drinkCount": 1,
+            "standardDrinks": 1.2,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 1,
+            "standardDrinks": 1.2,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 2,
+            "standardDrinks": 2.2,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 4,
+            "standardDrinks": 4.2,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": 600000,
+        "meanIntervalMs": 2100000.0,
+        "maxDrinksInAny30Min": 1,
+        "maxStandardDrinksInAny60Min": 2.2,
+        "clusterCount": 4,
+        "rapidConsumption": false,
+        "rapidReasons": [],
+        "concentrated": true,
+        "clockSkewDetected": false
+      }
+    },
+    {
+      "name": "detector_only_not_counted",
+      "description": "A gesture-detected (unconfirmed) event is never counted.",
+      "sessionStartedAt": 1764291600000,
+      "now": 1764292800000,
+      "events": [
+        {
+          "id": "e1",
+          "consumedAt": 1764292200000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292200000,
+          "counts": true
+        },
+        {
+          "id": "e2",
+          "consumedAt": 1764292500000,
+          "standardDrinks": 1.0,
+          "ethanolGrams": 14.0,
+          "revision": 1,
+          "updatedAt": 1764292500000,
+          "counts": false
+        }
+      ],
+      "expected": {
+        "totalDrinks": 1,
+        "totalUnknownStrength": 0,
+        "totalStandardDrinks": 1.0,
+        "windows": {
+          "15": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "30": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "60": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          },
+          "120": {
+            "drinkCount": 1,
+            "standardDrinks": 1.0,
+            "unknownStrengthCount": 0
+          }
+        },
+        "timeSinceLastDrinkMs": 600000,
+        "meanIntervalMs": null,
+        "maxDrinksInAny30Min": 1,
+        "maxStandardDrinksInAny60Min": 1.0,
+        "clusterCount": 1,
+        "rapidConsumption": false,
+        "rapidReasons": [],
+        "concentrated": false,
+        "clockSkewDetected": false
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { createServices, setServices, type AppServices } from '../../services/co
 import { defaultGoals, defaultPreferences } from '../../services/defaults';
 import { UnavailableHealthProvider } from '../../services/health/types';
 import { RecordingNotificationGateway } from '../../services/notifications';
+import { MemoryWatchTransport } from '../../services/watch/watchBridge';
 import { createTestDatabase } from './sqljsDatabase';
 
 export const T0 = Date.UTC(2026, 10, 28, 1, 0, 0); // Fri 20:00 in New York
@@ -14,6 +15,7 @@ export interface Harness {
   notifications: RecordingNotificationGateway;
   prefs: { current: UserPreferences };
   goals: { current: UserGoals };
+  watch: MemoryWatchTransport;
 }
 
 export async function createHarness(options: { cloudSync?: boolean; goals?: Partial<UserGoals>; prefs?: Partial<UserPreferences> } = {}): Promise<Harness> {
@@ -22,6 +24,7 @@ export async function createHarness(options: { cloudSync?: boolean; goals?: Part
   const prefs = { current: { ...defaultPreferences(T0, 'US'), ...options.prefs } };
   const goals = { current: { ...defaultGoals(T0), ...options.goals } };
   const notifications = new RecordingNotificationGateway();
+  const watch = new MemoryWatchTransport();
   const services = await createServices({
     db,
     clock,
@@ -30,7 +33,8 @@ export async function createHarness(options: { cloudSync?: boolean; goals?: Part
     cloudSyncAvailable: options.cloudSync ?? false,
     notifications,
     health: new UnavailableHealthProvider(),
+    watchTransport: watch,
   });
   setServices(services);
-  return { services, clock, notifications, prefs, goals };
+  return { services, clock, notifications, prefs, goals, watch };
 }

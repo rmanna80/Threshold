@@ -1,5 +1,6 @@
 import { setIdGenerator } from '@threshold/core';
 import * as Crypto from 'expo-crypto';
+import * as Haptics from 'expo-haptics';
 import { getLocales } from 'expo-localization';
 import { featureFlags } from '../config/featureFlags';
 import { openAppDatabase } from '../database/open';
@@ -10,6 +11,11 @@ import { createServices, setServices, type AppServices } from './container';
 import { defaultPreferences } from './defaults';
 import { HealthKitProvider } from './health/healthkitProvider';
 import { configureForegroundPresentation, expoNotificationGateway } from './notifications';
+import { ApiClient } from './sync/apiClient';
+import { secureTokenStore } from './sync/secureTokenStore';
+import { createNativeWatchTransport } from './watch/watchBridge';
+import { env } from '../config/env';
+import { AppState } from 'react-native';
 import { queryClient } from './queryClient';
 
 let bootPromise: Promise<AppServices> | null = null;
@@ -43,6 +49,11 @@ async function run(): Promise<AppServices> {
     cloudSyncAvailable: featureFlags.cloudSync,
     notifications: expoNotificationGateway,
     health: new HealthKitProvider(),
+    watchTransport: createNativeWatchTransport(),
+    createApi: (deviceId) =>
+      env.apiUrl ? new ApiClient(env.apiUrl, secureTokenStore, deviceId, (u, i) => fetch(u, i), 15_000, env.appEnv === 'development') : null,
+    hasHealthConsent: () => useAppStore.getState().hasConsent('healthkit'),
+    haptic: () => void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => undefined),
   });
   configureForegroundPresentation();
   setServices(services);
@@ -53,7 +64,27 @@ async function run(): Promise<AppServices> {
     void queryClient.invalidateQueries({ queryKey: ['analytics'] });
   });
 
+  services.interventions.subscribe((sessionId, events) => {
+    useSessionStore.getState().appendInterventions(sessionId, events);
+  });
+
   await useAppStore.getState().hydrate();
   await useSessionStore.getState().refresh();
+  services.watchSync.start();
+  if (services.sync) {
+    const trySync = async () => {
+      if (!useAppStore.getState().preferences.cloudSyncEnabled || !(await services.api?.isSignedIn())) return;
+      await services.sync?.syncNow().catch(() => undefined);
+    };
+    AppState.addEventListener('change', (state) => {
+      if (state === 'active') void trySync();
+    });
+    services.sessions.subscribe((c) => {
+      if (c.reason === 'ended') void trySync();
+    });
+    void trySync();
+  }
+  // Health sync runs in the background; failures never block start-up.
+  void services.healthService.sync(30).then(() => queryClient.invalidateQueries({ queryKey: ['health'] })).catch(() => undefined);
   return services;
 }

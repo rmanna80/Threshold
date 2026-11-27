@@ -213,7 +213,10 @@ export class SessionService {
    */
   async ingestRemote(
     input: { session?: unknown; drinks?: unknown[] },
+    options: { fromCloud?: boolean } = {},
   ): Promise<{ applied: number; rejected: string[]; conflicts: string[] }> {
+    // Records pulled from the cloud are not re-queued for upload (they are already there).
+    const record = options.fromCloud ? async () => undefined : this.outbox.record.bind(this.outbox);
     const rejected: string[] = [];
     const conflicts: string[] = [];
     let applied = 0;
@@ -240,7 +243,7 @@ export class SessionService {
         }
         if (await this.repos.sessions.upsert(incoming)) {
           applied += 1;
-          await this.outbox.record('drinking_session', incoming, now);
+          await record('drinking_session', incoming, now);
         }
         session = await this.repos.sessions.getById(incoming.id);
       }
@@ -258,7 +261,7 @@ export class SessionService {
       }
       if (await this.repos.drinks.upsert(parsed.value)) {
         applied += 1;
-        await this.outbox.record('drink_event', parsed.value, now);
+        await record('drink_event', parsed.value, now);
       }
       session = owner;
     }

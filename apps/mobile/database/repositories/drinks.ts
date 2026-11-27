@@ -224,6 +224,11 @@ export class BeverageRepository {
     return rows.map(toBeverage);
   }
 
+  async findByName(name: string, category: Beverage['category']): Promise<Beverage | null> {
+    const row = await this.db.getFirstAsync<BeverageRow>('SELECT * FROM beverages WHERE name = ? AND category = ? LIMIT 1', [name.trim(), category]);
+    return row ? toBeverage(row) : null;
+  }
+
   async listCustom(): Promise<Beverage[]> {
     const rows = await this.db.getAllAsync<BeverageRow>('SELECT * FROM beverages WHERE is_custom = 1 ORDER BY name ASC');
     return rows.map(toBeverage);
